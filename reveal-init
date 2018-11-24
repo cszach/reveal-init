@@ -289,7 +289,7 @@ printf "$t$t$t</div>\n$t$t</div>\n\n" >> $indexf
 
 printf "$t$t<script src=\"js/reveal.js\"></script>\n\n" >> $indexf
 
-if [[ $plugins == "" ]]
+if [[ $plugins == "-" ]]
 then
     printf "$t$t<script>\n$t$t$t\x52eveal.initialize();\n$t$t</script>\n" >> $indexf
 else
