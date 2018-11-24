@@ -1,0 +1,309 @@
+#!/bin/sh
+# reveal-init - Reveal.js slide deck initiator
+#
+# Written by Nguyen Hoang Duong (@NOVAglow)
+#
+# This is free and unencumbered software released into the public domain.
+# For more information, please refer to <http://unlicense.org/>
+
+# === MAIN VARIABLES ===
+
+dirname=""  # Project directory of the slide deck
+title=""    # Title of the presentation (which goes into <title></title>)
+theme=""    # Theme for the slide deck
+plugins=""  # List of plugins (separated by white spaces)
+
+# ======================
+
+# === PROGRAM'S VARIABLES ===
+
+t="    "   # Tab
+n_err=0    # Number of errors
+n_slide=0  # Number of empty non-vertical slides to create
+import_readme=false  # Import README.md?
+import_demo=false    # Import demo.html?
+
+function warn() {
+    printf "\033[1;33mWARNING\033[0m $1\n"
+}
+
+function err() {
+    printf "\033[1;31mERROR\033[0m $1\n"
+    n_err=$(( $n_err + 1 ))
+}
+
+# ===========================
+
+case $1 in
+    "-h" | "--help" | "?")
+        printf "\
+reveal-init: Create a new Reveal.js presentation project from files in \$REVEAL_PATH\n\
+USAGE: reveal-init [-h|--help|?] [ [-t TITLE] [-f THEME] [--plugin PLUGINS -]\n\
+                  [--header HEADER] [-n NUM] [--short-tab|--long-tab]\n\
+                  [--import-demo] [--import-readme] DIRNAME ]\n\n\
+  -h, --help, ?        : Print this help and exit.\n\
+      --help-page      : View this help in 'less' (the Unix pager program)\n\
+  -t, --title TITLE    : Set presentation's <title>.\n\
+  -f, --theme THEME    : Theme (found in \$REVEAL_PATH/css/theme as a CSS file)\n\
+                         to import. If THEME is \"all\", the script will import\n\
+                         all themes. If THEME is \"-\", the script will not\n\
+                         import any theme.\n\
+                         Otherwise, import \$REVEAL_PATH/css/theme/THEME.css.\n\
+      --plugin PLUGINS : Plugins (found in \$REVEAL_PATH/plugin, usually as a\n\
+                         directory) to import. PLUGINS is where the plugins are\n\
+                         listed, separated with a space character. The list\n\
+		                 must be ended with a dash (\"-\").\n\
+      --header HEADER  : Add a <h1>HEADER</h1> in the first slide\n\
+  -n NUM               : Create NUM empty non-vertical slide(s), not including\n\
+                         the first slide if --header is specified.\n\
+      --short-tab      : Use 2-space tabs.\n\
+      --long-tab       : Use 4-space tabs (default).\n\
+      --import-readme  : Import README.md of the Reveal.js project, which should\n\
+                         contain the instructions for using the framework.\n\
+                         First import from \$REVEAL_PATH, if \$REVEAL_PATH\n\
+                         doesn't have one then get the README from the web.\n\
+      --import-demo    : Import demo.html - the Reveal.js demo (as shown on\n\
+                         revealjs.com) - if there is. Plugins used by the demo\n\
+                         will also be imported. Ignore any missing plugin.\n\n\
+  The above options are all optional.\n\n\
+ABOUT \$REVEAL_PATH:\n\n\
+    \$REVEAL_PATH is the environment variable that this script uses to import\n\
+  files from. It should be Reveal.js project directory (e.g. cloned from\n\
+  https://github.com/hakimel/reveal.js) and it should follow the orignal\n\
+  directory structure (see \"Folder Structure\" section in Reveal.js project's\n\
+  README for a basic reference). You should set \$REVEAL_PATH in .bashrc or any\n\
+  script with similar functionality that you are using with, for example:\n\n\
+    export REVEAL_PATH=\"\$HOME/Projects/Forks/reveal.js\"\n\n\
+EXAMPLES\n\n\
+  1. Create a new project in a directory named \"new_project\". Presentation's
+  title is \"My Reveal.js presentation\".\n\n\
+    reveal-init --title \"My Reveal.js presentation\" new_project\n\n\
+  2. Create a new slide deck titled \"Using Reveal.js\" with 2 plugins: notes\n\
+  and multiplex. Theme is black.\n\n\
+    reveal-init -t \"Using Reveal.js\" --plugin notes multiplex - -f black use_reveal\n\n\
+  3. Create a new slide deck titled \"Boring slides...\" with no theme.\n\n\
+    reveal-init -t \"Boring slides...\" --theme - boring_deck\n\n\
+  4. Create a deck with 5 slides, one of which contains the big header.\n\n\
+    reveal-init -n 5 --header \"My point of view\" -f sky inspiring_slides\n\n\
+  5. Create a barebone slide deck\n\n\
+    reveal-init barebone\n"
+        exit 0
+        ;;
+    "--help-page")
+        sh $0 ? | less
+        exit 0
+        ;;
+esac
+
+[ $# -eq 0 ] && \
+    err "Directory name not given.\nInvoke '--help' for more information" \
+    && exit 1
+
+# === CHECK $REVEAL_PATH ===
+
+if [ -z $REVEAL_PATH ]; then
+    warn "\$REVEAL_PATH is empty"
+    printf "Is it:\n  1: The current directory\n  2: You forgot to set a value for it?"
+    read -p "[1|2] " rpe_c
+
+    case $rpe_c in
+        1)
+            echo "Okay, \$REVEAL_PATH is empty"
+            $REVEAL_PATH="."
+            ;;
+        2)
+            echo "Then go set a value for it with 'export'"
+            exit 2
+            ;;
+        *)
+            err "Invalid option, aborting..."
+            exit 2
+            ;;
+    esac
+fi
+
+# Must include:
+#   - $REVEAL_PATH/css/reveal.css
+#   - $REVEAL_PATH/js/reveal.js
+#
+# Warn if absent:
+#   - $REVEAL_PATH/css/theme          (no theme)
+#   - $REVEAL_PATH/lib/js/head.min.js (no plugin)
+#   - $REVEAL_PATH/plugin             (no plugin)
+
+echo "Checking \$REVEAL_PATH..."
+
+if ! [ -f $REVEAL_PATH/css/reveal.css ]
+then
+    err "$REVEAL_PATH/css/reveal.css not found"
+elif ! [ -d $REVEAL_PATH/css/theme ] && [ -z $(ls $REVEAL_PATH/css/theme) ]
+then
+    warn "No theme?"
+    theme="-"
+fi
+
+! [ -f $REVEAL_PATH/js/reveal.js ] && err "$REVEAL_PATH/js/reveal.js not found"
+
+! [ -f $REVEAL_PATH/lib/js/head.min.js ] && \
+  warn "$REVEAL_PATH/lib/js/head.min.js not found, plugins won't be loaded" && \
+  plugins="-"
+
+! [ -d $REVEAL_PATH/plugin ] && warn "No plugin?" && plugins="none"
+
+[ $n_err -gt 0 ] && \
+    printf "\033[1;31mFATAL\033[0m Fix the above problem(s) and try again" \
+    && exit 3
+
+echo "Done checking."
+
+# ==========================
+
+opt=""
+
+for arg in "$@"
+do
+    if [ $# -eq 1 ]; then
+        [ -d $1 ] && err "Directory '$1' exists" && exit 4
+        dirname=$1 && break
+    fi
+
+    case $opt in
+        "-t" | "-title" | "--title")
+            title=$1
+            opt=""
+            ;;
+        "-f" | "-theme" | "--theme")
+            if [[ $1 == "-" ]] || [[ $theme == "-" ]]; then
+                theme="-"
+            elif [[ $1 == "all" ]] || [[ $1 == "*" ]]; then
+                theme="*"
+            elif [ -f $REVEAL_PATH/css/theme/$1.css ]; then
+                theme="$1"
+            else
+                err "Theme '$1' ($REVEAL_PATH/css/theme/$1.css) not found"
+            fi
+            opt=""
+            ;;
+        "-plugin" | "--plugin")
+            if [[ $1 != "-" ]]; then
+                [ -d $REVEAL_PATH/plugin/$1 ] \
+                  && [[ $plugins != "-" ]] && plugins="$plugins$1 " \
+                  || err "Plugin '$1' ($REVEAL_PATH/plugin/$1) not found"
+            else
+                opt=""
+            fi
+            ;;
+        "-header" | "--header")
+            header="$1"
+            opt=""
+            ;;
+        "-n")
+            [[ $1 =~ ^[0-9]+$ ]] \
+              && n_slide=$1 \
+              || err "-n: Invalid input for number of slides, option ignored"
+            ;;
+        *)
+            case $1 in
+                "-t" | "-title" | "--title" | "-f" | "-theme" | "--theme" \
+                | "-plugin" | "--plugin" | "-header" | "--header" | "-n")
+                    opt=$1;;
+                "--short-tab") t="  ";;
+                "--long-tab") t="    ";;
+                "--import-readme") import_readme=true;;
+                "--import-demo") import_demo=true;;
+                *) err "Invalid option '$1', aborting..." && exit 5;;
+            esac
+            ;;
+    esac
+    shift
+done
+
+[[ $theme == "" ]] && theme="-"
+[[ $plugins == "" ]] && plugins="-"
+
+# === START COPYING FILES ===
+
+# Make directories
+
+mkdir -p $dirname/js
+[ $? -ne 0 ] && err "Please validate the directory name (DIRNAME)." && exit 6
+mkdir -p $dirname/css/theme
+mkdir $dirname/plugin
+
+# Copy js/ (supposedly contains reveal.js) and reveal.css
+
+cp -r $REVEAL_PATH/js/* $dirname/js/
+cp $REVEAL_PATH/css/reveal.css $dirname/css/reveal.css
+
+# Copy theme
+
+if [[ $theme == "*" ]]; then
+    cp $REVEAL_PATH/css/theme/*.css $REVEAL_PATH/css/theme/source/*.scss $dirname/css/theme/
+elif [[ $theme != "-" ]]; then
+    cp $REVEAL_PATH/css/theme/$theme.css $dirname/css/theme/$theme.css
+    [ -f $REVEAL_PATH/css/theme/source/$theme.scss ] && \
+      cp $REVEAL_PATH/css/theme/source/$theme.scss $dirname/css/theme/$theme.scss
+fi
+
+# Copy plugins
+
+[[ $plugins != "-" ]] && for plugin in $plugins; do
+    cp -r $REVEAL_PATH/plugin/$plugin $dirname/plugin/$plugin
+done
+
+# Copy lib/
+
+[ -d $REVEAL_PATH/lib ] && cp -r $REVEAL_PATH/lib $dirname/lib
+
+# Create index.html
+
+touch $dirname/index.html
+indexf="$dirname/index.html"
+
+printf "<!DOCTYPE html>\n<html>\n$t<head>\n$t$t<meta charset=\"utf-8\">\n\
+$t$t<meta name=\"viewport\" content=\"width=device-width\
+, initial-scale=1.0, maximum-scale=1.0, user-scalable=no\">\n\n\
+$t$t<title>$title</title>\n\n\
+$t$t<link rel=\"stylesheet\" href=\"css/reveal.css\">\n" > $indexf
+
+[[ $theme != "-" ]] && [[ $theme != "*" ]] && \
+    printf "$t$t<link rel=\"stylesheet\" href=\"css/theme/$theme.css\">\n" >> $indexf
+
+[ -f $dirname/lib/css/zenburn.css ] && \
+printf \
+"\n$t$t<!-- Theme used for syntax highlighting of code -->\n\
+$t$t<link rel=\"stylesheet\" href=\"lib/css/zenburn.css\">\n" >> $indexf
+
+[ -f $dirname/lib/js/html5shiv.js ] && \
+printf \
+"\n$t$t<!--[if lt IE 9]>\n$t$t$t<script src=\"lib/js/html5shiv.js\">\
+</script>\n$t$t<![endif]-->\n" >> $indexf
+
+printf "$t</head>\n$t<body>\n$t$t<div class=\"reveal\">\n$t$t$t<div class=\"slides\">\n" >> $indexf
+
+[[ -n $header ]] && \
+    printf "$t$t$t$t<section>\n$t$t$t$t$t<h1>$header</h1>\n$t$t$t$t</section>\n" >> $indexf
+
+printf "$t$t$t</div>\n$t$t</div>\n\n" >> $indexf
+
+[ -f $dirname/lib/js/head.min.js ] && \
+    printf "$t$t<script src=\"lib/js/head.min.js\"></script>\n" >> $indexf
+
+printf "$t$t<script src=\"js/reveal.js\"></script>\n\n" >> $indexf
+
+if [[ $plugins == "" ]]
+then
+    printf "$t$t<script>\n$t$t$t\x52eveal.initialize();\n$t$t</script>\n" >> $indexf
+else
+    printf "$t$t<script>\n$t$t$t\x52eveal.initialize({\n$t$t$t$t\x64ependencies: [\n" >> $indexf
+    for plugin in $plugins; do
+        printf "$t$t$t$t$t{ src: 'plugin/$plugin/$plugin.js' },\n" >> $indexf
+    done
+    printf "$t$t$t$t]\n$t$t$t});\n$t$t</script>\n" >> $indexf
+fi
+
+printf "$t</body>\n</html>" >> $indexf
+
+echo "Generated a new slide deck at $dirname."
+
+# ===========================
