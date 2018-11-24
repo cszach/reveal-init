@@ -191,6 +191,7 @@ do
             [[ $1 =~ ^[0-9]+$ ]] \
               && n_slide=$1 \
               || err "-n: Invalid input for number of slides, option ignored"
+            opt=""
             ;;
         *)
             case $1 in
@@ -208,7 +209,7 @@ done
 
 [[ $theme == "" ]] && theme="-"
 [[ $plugins == "" ]] && plugins="-"
-[ -n $header ] && n_slide=$(( $n_slide - 1 ))
+[[ -n $header ]] && n_slide=$(( $n_slide - 1 ))
 
 # === START COPYING FILES ===
 
@@ -299,7 +300,7 @@ else
     printf "$t$t$t$t]\n$t$t$t});\n$t$t</script>\n" >> $indexf
 fi
 
-printf "$t</body>\n</html>" >> $indexf
+printf "$t</body>\n</html>\n" >> $indexf
 
 echo "Generated a new slide deck at $dirname."
 
