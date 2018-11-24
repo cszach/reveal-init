@@ -20,8 +20,6 @@ plugins=""  # List of plugins (separated by white spaces)
 t="    "   # Tab
 n_err=0    # Number of errors
 n_slide=0  # Number of empty non-vertical slides to create
-import_readme=false  # Import README.md?
-import_demo=false    # Import demo.html?
 
 function warn() {
     printf "\033[1;33mWARNING\033[0m $1\n"
@@ -39,8 +37,7 @@ case $1 in
         printf "\
 reveal-init: Create a new Reveal.js presentation project from files in \$REVEAL_PATH\n\
 USAGE: reveal-init [-h|--help|?] [ [-t TITLE] [-f THEME] [--plugin PLUGINS -]\n\
-                  [--header HEADER] [-n NUM] [--short-tab|--long-tab]\n\
-                  [--import-demo] [--import-readme] DIRNAME ]\n\n\
+                  [--header HEADER] [-n NUM] [--short-tab|--long-tab] DIRNAME ]\n\n\
   -h, --help, ?        : Print this help and exit.\n\
       --help-page      : View this help in 'less' (the Unix pager program)\n\
   -t, --title TITLE    : Set presentation's <title>.\n\
@@ -57,14 +54,7 @@ USAGE: reveal-init [-h|--help|?] [ [-t TITLE] [-f THEME] [--plugin PLUGINS -]\n\
   -n NUM               : Create NUM empty non-vertical slide(s), not including\n\
                          the first slide if --header is specified.\n\
       --short-tab      : Use 2-space tabs.\n\
-      --long-tab       : Use 4-space tabs (default).\n\
-      --import-readme  : Import README.md of the Reveal.js project, which should\n\
-                         contain the instructions for using the framework.\n\
-                         First import from \$REVEAL_PATH, if \$REVEAL_PATH\n\
-                         doesn't have one then get the README from the web.\n\
-      --import-demo    : Import demo.html - the Reveal.js demo (as shown on\n\
-                         revealjs.com) - if there is. Plugins used by the demo\n\
-                         will also be imported. Ignore any missing plugin.\n\n\
+      --long-tab       : Use 4-space tabs (default).\n\n\
   The above options are all optional.\n\n\
 ABOUT \$REVEAL_PATH:\n\n\
     \$REVEAL_PATH is the environment variable that this script uses to import\n\
@@ -209,8 +199,6 @@ do
                     opt=$1;;
                 "--short-tab") t="  ";;
                 "--long-tab") t="    ";;
-                "--import-readme") import_readme=true;;
-                "--import-demo") import_demo=true;;
                 *) err "Invalid option '$1', aborting..." && exit 5;;
             esac
             ;;
@@ -220,6 +208,7 @@ done
 
 [[ $theme == "" ]] && theme="-"
 [[ $plugins == "" ]] && plugins="-"
+[ -n $header ] && n_slide=$(( $n_slide - 1 ))
 
 # === START COPYING FILES ===
 
@@ -283,6 +272,14 @@ printf "$t</head>\n$t<body>\n$t$t<div class=\"reveal\">\n$t$t$t<div class=\"slid
 
 [[ -n $header ]] && \
     printf "$t$t$t$t<section>\n$t$t$t$t$t<h1>$header</h1>\n$t$t$t$t</section>\n" >> $indexf
+
+if [ $n_slide -gt 0 ]; then
+    while [ $n_slide -ne 0 ]
+    do
+        printf "$t$t$t$t<section>\n$t$t$t$t</section>\n" >> $indexf
+        n_slide=$(( $n_slide - 1))
+    done
+fi
 
 printf "$t$t$t</div>\n$t$t</div>\n\n" >> $indexf
 
