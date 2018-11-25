@@ -53,11 +53,11 @@ USAGE: reveal-init [-h|--help|?] [ [-t TITLE] [-f THEME] [--plugin PLUGINS -]\n\
       --header HEADER  : Add a <h1>HEADER</h1> in the first slide. Set HEADER\n\
                          to \"_TITLE\" to make HEADER the same as TITLE\n\
                          (specified by -t or --title).\n\
-  -n NUM               : Create NUM empty non-vertical slide(s), not including\n\
-                         the first slide if --header is specified.\n\
+  -n NUM               : Create NUM empty non-vertical slide(s).\n\
+                         With --header: Create NUM empty non-vertical slide(s)\n\
+                         after the first slide.\n\
       --short-tab      : Use 2-space tabs.\n\
       --long-tab       : Use 4-space tabs (default).\n\n\
-  The above options are all optional.\n\n\
 ABOUT \$REVEAL_PATH:\n\n\
     \$REVEAL_PATH is the environment variable that this script uses to import\n\
   files from. It should be Reveal.js project directory (e.g. cloned from\n\
@@ -211,7 +211,6 @@ done
 
 [[ $theme == "" ]] && theme="-"
 [[ $plugins == "" ]] && plugins="-"
-[[ -n $header ]] && n_slide=$(( $n_slide - 1 ))
 
 # === START COPYING FILES ===
 
