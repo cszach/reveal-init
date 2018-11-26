@@ -135,7 +135,7 @@ echo "Checking \$REVEAL_PATH..."
 if ! [ -f $REVEAL_PATH/css/reveal.css ]
 then
     err "$REVEAL_PATH/css/reveal.css not found"
-elif ! [ -d $REVEAL_PATH/css/theme ] && [ -z $(ls $REVEAL_PATH/css/theme) ]
+elif ! [ -d $REVEAL_PATH/css/theme ] || [ -z $(ls $REVEAL_PATH/css/theme) ]
 then
     warn "No theme?"
     theme="-"
@@ -150,7 +150,7 @@ fi
 ! [ -d $REVEAL_PATH/plugin ] && warn "No plugin?" && plugins="none"
 
 [ $n_err -gt 0 ] && \
-    printf "\033[1;31mFATAL\033[0m Fix the above problem(s) and try again" \
+    printf "\n\033[1;31mFATAL\033[0m Fix the above problem(s) and try again\n" \
     && exit 3
 
 echo "Done checking."
