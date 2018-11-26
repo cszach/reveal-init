@@ -41,8 +41,8 @@ USAGE: reveal-init [-h|--help|?|--help-page|--version] [ [-t TITLE] [-f THEME]\n
                    [--plugin PLUGINS -] [--header HEADER] [-n NUM]\n\
                    [--short-tab|--long-tab] DIRNAME ]\n\n\
   -h, --help, ?        : Print this help and exit.\n\
-      --help-page      : View this help in 'less' (the Unix pager program)\n\
-      --version        : Print version and exit
+      --help-page      : View this help in 'less' (the Unix pager program).\n\
+      --version        : Print version and exit.
   -t, --title TITLE    : Set presentation's <title>.\n\
   -f, --theme THEME    : Theme (found in \$REVEAL_PATH/css/theme as a CSS file)\n\
                          to import. If THEME is \"all\", the script will import\n\
@@ -59,8 +59,8 @@ USAGE: reveal-init [-h|--help|?|--help-page|--version] [ [-t TITLE] [-f THEME]\n
   -n NUM               : Create NUM empty non-vertical slide(s).\n\
                          With --header: Create NUM empty non-vertical slide(s)\n\
                          after the first slide.\n\
-      --short-tab      : Use 2-space tabs.\n\
-      --long-tab       : Use 4-space tabs (default).\n\n\
+      --short-tab      : Use 2-space tabs in index.html.\n\
+      --long-tab       : Use 4-space tabs in index.html (default).\n\n\
 ABOUT \$REVEAL_PATH:\n\n\
     \$REVEAL_PATH is the environment variable that this script uses to import\n\
   files from. It should be Reveal.js project directory (e.g. cloned from\n\
