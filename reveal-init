@@ -102,16 +102,17 @@ esac
 
 if [ -z $REVEAL_PATH ]; then
     warn "\$REVEAL_PATH is empty"
-    printf "Is it:\n  1: The current directory\n  2: You forgot to set a value for it?"
+    printf "Is it:\n  1: The current directory\n  2: You forgot to set a value for it?\n"
     read -p "[1|2] " rpe_c
 
     case $rpe_c in
         1)
-            echo "Okay, \$REVEAL_PATH is empty"
-            $REVEAL_PATH="."
+            echo "Okay, \$REVEAL_PATH is the current directory"
+            REVEAL_PATH="."
             ;;
         2)
             echo "Then go set a value for it with 'export'"
+            echo "Aborting..."
             exit 2
             ;;
         *)
@@ -133,7 +134,7 @@ fi
 echo "Checking \$REVEAL_PATH..."
 
 ! [ -f $REVEAL_PATH/css/reveal.css ] && err "$REVEAL_PATH/css/reveal.css not found"
-! [ -d $REVEAL_PATH/css/theme ] || [ -z $(ls $REVEAL_PATH/css/theme) ] && \
+! [ -d $REVEAL_PATH/css/theme ] || [[ -z $(ls $REVEAL_PATH/css/theme) ]] && \
     warn "No theme?" && theme="-"
 
 ! [ -f $REVEAL_PATH/js/reveal.js ] && err "$REVEAL_PATH/js/reveal.js not found"
