@@ -6,15 +6,21 @@ reveal-init
 copies necessary files from an existing clone of the Reveal.js repository on
 your computer into a new directory.
 
-Why?
-----
+1. [Why?](#why)
+2. [Demos](#just-reveal-init-and-see-what-youve-got-sunglasses)
+3. [Features](#nice-features-sparkles)
+4. [Usage](#how-to-use-reveal-init-computer)
+5. [License](#license)
+
+:thinking: Why?
+---------------
 
 Every time you want to start a Reveal.js presentation project, you probably
 have to copy the whole Reveal.js repository, which contains unnecessary files
 (e.g. the ones for development, unnecessary themes & plugins) that you'll have
 to delete later. `reveal-init` helps you get through that intimidating process.
 
-Just `reveal-init` and see what you've got :sunglasses:
+:sunglasses: Just `reveal-init` and see what you've got
 -------------------------------------------------------
 
 ### Input:
@@ -220,7 +226,7 @@ reveal-init -t "Boring slides | Boring Inc." --header "There's nothing here.<br>
 
 ![](img/05.png)
 
-Nice features :sparkles:
+:sparkles: Nice features
 ------------------------
 
 1. :gift: Give your `index.html` a `<title>`
@@ -229,7 +235,7 @@ Nice features :sparkles:
 4. :gear: Import plugins too
 5. :bowtie: 2-space tabs or 4-space tabs
 
-How to use `reveal-init` :computer:
+:computer: How to use `reveal-init`
 -----------------------------------
 
 1. [Get it](https://github.com/NOVAglow/reveal-init/releases).
@@ -242,8 +248,8 @@ a clone of a fork of it.
 5. Run `reveal-init ?` to learn how to use it.
 6. Start sprinkling magic. :sunglasses:
 
-License
--------
+:page_with_curl: License
+------------------------
 
 Licensed under [The Unlicense](http://unlicense.org/). This means `reveal-init`
 belongs to the Public Domain.
