@@ -132,14 +132,9 @@ fi
 
 echo "Checking \$REVEAL_PATH..."
 
-if ! [ -f $REVEAL_PATH/css/reveal.css ]
-then
-    err "$REVEAL_PATH/css/reveal.css not found"
-elif ! [ -d $REVEAL_PATH/css/theme ] || [ -z $(ls $REVEAL_PATH/css/theme) ]
-then
-    warn "No theme?"
-    theme="-"
-fi
+! [ -f $REVEAL_PATH/css/reveal.css ] && err "$REVEAL_PATH/css/reveal.css not found"
+! [ -d $REVEAL_PATH/css/theme ] || [ -z $(ls $REVEAL_PATH/css/theme) ] && \
+    warn "No theme?" && theme="-"
 
 ! [ -f $REVEAL_PATH/js/reveal.js ] && err "$REVEAL_PATH/js/reveal.js not found"
 
