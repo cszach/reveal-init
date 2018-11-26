@@ -67,6 +67,8 @@ reveal-init -t "The State of Being Ordinary" --header _TITLE -f black --plugin z
 
 ![](img/01.png)
 
+- - -
+
 ### Input:
 
 ```shell
@@ -112,6 +114,8 @@ reveal-init --header "My Point of View" -f sky --plugin notes notes-server - --s
 
 ![](img/02.png)
 
+- - -
+
 ### Input:
 
 ```shell
@@ -149,6 +153,8 @@ reveal-init -t "On Serif | John Doe" --header "Serif on the Web" -theme serif -n
 ```
 
 ![](img/03.png)
+
+- - -
 
 ### Input:
 
@@ -189,6 +195,8 @@ reveal-init -t "Evolution of Computer Graphics" --header _TITLE -f league --plug
 ```
 
 ![](img/04.png)
+
+- - -
 
 ### Input:
 
