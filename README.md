@@ -2,7 +2,17 @@ reveal-init
 ===========
 
 `reveal-init` is a Shell script :shell: that is used to create a new
-[Reveal.js](https://revealjs.com) presentation project.
+[Reveal.js](https://revealjs.com) presentation project. More specifically, it
+copies necessary files from an existing clone of the Reveal.js repository on
+your computer into a new directory.
+
+Why?
+----
+
+Every time you want to start a Reveal.js presentation project, you probably
+have to copy the whole Reveal.js repository, which contains unnecessary files
+(e.g. the ones for development, unnecessary themes & plugins) that you'll have
+to delete later. `reveal-init` helps you get through that intimidating process.
 
 Just `reveal-init` and see what you've got :sunglasses:
 -------------------------------------------------------
