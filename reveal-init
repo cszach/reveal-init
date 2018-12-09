@@ -221,29 +221,32 @@ done
 
 mkdir -p $dirname/js
 [ $? -ne 0 ] && err "Please validate the directory name (DIRNAME)." && exit 6
-mkdir -p $dirname/css/theme
-mkdir $dirname/plugin
+mkdir $dirname/css
+
+# Copy themes
+
+[[ $theme != "-" ]] && mkdir $dirname/css/theme && case $theme in
+    "*")
+        cp $REVEAL_PATH/css/theme/*.css \
+            $REVEAL_PATH/css/theme/source/*.scss $dirname/css/theme/
+        ;;
+    *)
+        cp $REVEAL_PATH/css/theme/$theme.css $dirname/css/theme/$theme.css
+        [ -f $REVEAL_PATH/css/theme/source/$theme.scss ] && \
+            cp $REVEAL_PATH/css/theme/source/$theme.scss $dirname/css/theme/$theme.scss
+        ;;
+esac
+
+# Copy plugins
+
+[[ $plugins != "-" ]] && mkdir $dirname/plugin && for plugin in $plugins; do
+    cp -r $REVEAL_PATH/plugin/$plugin $dirname/plugin/$plugin
+done
 
 # Copy js/ (supposedly contains reveal.js) and reveal.css
 
 cp -r $REVEAL_PATH/js/* $dirname/js/
 cp $REVEAL_PATH/css/reveal.css $dirname/css/reveal.css
-
-# Copy theme
-
-if [[ $theme == "*" ]]; then
-    cp $REVEAL_PATH/css/theme/*.css $REVEAL_PATH/css/theme/source/*.scss $dirname/css/theme/
-elif [[ $theme != "-" ]]; then
-    cp $REVEAL_PATH/css/theme/$theme.css $dirname/css/theme/$theme.css
-    [ -f $REVEAL_PATH/css/theme/source/$theme.scss ] && \
-      cp $REVEAL_PATH/css/theme/source/$theme.scss $dirname/css/theme/$theme.scss
-fi
-
-# Copy plugins
-
-[[ $plugins != "-" ]] && for plugin in $plugins; do
-    cp -r $REVEAL_PATH/plugin/$plugin $dirname/plugin/$plugin
-done
 
 # Copy lib/
 
