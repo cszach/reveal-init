@@ -40,12 +40,13 @@ case $1 in
     "-h" | "--help" | "?")
         printf "\
 reveal-init: Create a new Reveal.js presentation project from files in \$REVEAL_PATH\n\
-USAGE: reveal-init [-h|--help|?|--help-page|--version] [ [-t TITLE] [-f THEME]\n\
-                   [--plugin PLUGINS -] [--header HEADER] [-n NUM]\n\
+USAGE: reveal-init [-h|--help|?|--help-page|--version] [ [-d DIR] [-t TITLE]\n\
+                   [-f THEME] [--plugin PLUGINS -] [--header HEADER] [-n NUM]\n\
                    [--short-tab|--long-tab] DIRNAME ]\n\n\
   -h, --help, ?        : Print this help and exit.\n\
       --help-page      : View this help in 'less' (the Unix pager program).\n\
-      --version        : Print version and exit.
+      --version        : Print version and exit.\n\
+  -d DIR               : Set DIR as \$REVEAL_PATH (temporary).\n\
   -t, --title TITLE    : Set presentation's <title>.\n\
   -f, --theme THEME    : Theme (found in \$REVEAL_PATH/css/theme as a CSS file)\n\
                          to import. If THEME is \"all\", the script will import\n\
