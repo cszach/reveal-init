@@ -317,16 +317,17 @@ else
 
         if [ -f $dirname/plugin/$plugin/$plugin.js ]; then
             js_indexf="$plugin.js"
-        elif [[ ${plugin:${#plugin}-3:3} == "-js" ]] && \
-             [[ -f $dirname/plugin/$plugin/${plugin:0:${#plugin}-3}.js ]]; then
+        elif [[ -f $dirname/plugin/$plugin/${plugin:0:${#plugin}-3}.js ]]; then
             js_indexf="${plugin:0:${#plugin}-3}.js"
-        elif [[ ${plugin:${#plugin}-3:3} == ".js" ]] && \
-             [[ -f $dirname/plugin/$plugin/$plugin ]]; then
+        elif [[ -f $dirname/plugin/$plugin/$plugin ]]; then
             js_indexf="$plugin"
         elif [[ -f $dirname/plugin/$plugin/script.js ]]; then
             js_indexf="script.js"
-        else
+        elif [[ -f $dirname/plugin/$plugin/index.js ]]; then
             js_indexf="index.js"
+        else
+            warn "Failed to get plugin '$plugin''s JavaScript file to load from, please do this manually"
+            continue
         fi
 
         printf "$t$t$t$t$t{ src: 'plugin/$plugin/$js_indexf' },\n" >> $indexf
