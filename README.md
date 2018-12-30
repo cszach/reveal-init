@@ -260,13 +260,12 @@ a clone of a fork of it.
 ------------------------
 
 Licensed under [The Unlicense](http://unlicense.org/). This means `reveal-init`
-belongs to the Public Domain.
+belongs to the Public Domain. From the license text:
 
-```
-This is free and unencumbered software released into the public domain.
+> This is free and unencumbered software released into the public domain.
+>
+> Anyone is free to copy, modify, publish, use, compile, sell, or
+> distribute this software, either in source code form or as a compiled
+> binary, for any purpose, commercial or non-commercial, and by any
+> means.
 
-Anyone is free to copy, modify, publish, use, compile, sell, or
-distribute this software, either in source code form or as a compiled
-binary, for any purpose, commercial or non-commercial, and by any
-means.
-```
