@@ -315,17 +315,22 @@ else
 
         # Guess plugin's index JavaScript file from the plugin's directory name
 
-        if [ -f $dirname/plugin/$plugin/$plugin.js ]; then
-            js_indexf="$plugin.js"
-        elif [[ -f $dirname/plugin/$plugin/${plugin:0:${#plugin}-3}.js ]]; then
-            js_indexf="${plugin:0:${#plugin}-3}.js"
-        elif [[ -f $dirname/plugin/$plugin/$plugin ]]; then
-            js_indexf="$plugin"
-        elif [[ -f $dirname/plugin/$plugin/script.js ]]; then
-            js_indexf="script.js"
-        elif [[ -f $dirname/plugin/$plugin/index.js ]]; then
-            js_indexf="index.js"
-        else
+        posb_fname=("$plugin.js" "plugin:0:${#plugin}-3}.js" "$plugin" "script.js" "index.js")
+
+        for tfname in $posb_fname
+        do
+            if [ -f $dirname/plugin/$plugin/${tfname:0:${#tfname}-3}.min.js ]
+            then
+                js_indexf=${tfname:0:${#tfname}-3}.min.js
+                break
+            elif [ -f $dirname/plugin/$plugin/$tfname ]
+            then
+                js_indexf=$tfname
+                break
+            fi
+        done
+
+        if [ -z $js_indexf ]; then
             warn "Failed to get plugin '$plugin''s JavaScript file to load from, please do this manually"
             continue
         fi
