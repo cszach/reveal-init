@@ -312,7 +312,25 @@ then
 else
     printf "$t$t<script>\n$t$t$t\x52eveal.initialize({\n$t$t$t$t\x64ependencies: [\n" >> $indexf
     for plugin in $plugins; do
-        printf "$t$t$t$t$t{ src: 'plugin/$plugin/$plugin.js' },\n" >> $indexf
+        js_indexf=""
+
+        # Guess plugin's index JavaScript file from the plugin's directory name
+
+        if [ -f $dirname/plugin/$plugin/$plugin.js ]; then
+            js_indexf="$plugin.js"
+        elif [[ ${plugin:${#plugin}-3:3} == "-js" ]] && \
+             [[ -f $dirname/plugin/$plugin/${plugin:0:${#plugin}-3}.js ]]; then
+            js_indexf="${plugin:0:${#plugin}-3}.js"
+        elif [[ ${plugin:${#plugin}-3:3} == ".js" ]] && \
+             [[ -f $dirname/plugin/$plugin/$plugin ]]; then
+            js_indexf="$plugin"
+        elif [[ -f $dirname/plugin/$plugin/script.js ]]; then
+            js_indexf="script.js"
+        else
+            js_indexf="index.js"
+        fi
+
+        printf "$t$t$t$t$t{ src: 'plugin/$plugin/$js_indexf' },\n" >> $indexf
     done
     printf "$t$t$t$t]\n$t$t$t});\n$t$t</script>\n" >> $indexf
 fi
