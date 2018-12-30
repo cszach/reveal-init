@@ -1,1 +1,4 @@
+title: reveal-init
+description: reveal-init helps you start a new Reveal.js presentation project
 theme: jekyll-theme-dinky
+show_downloads: true
