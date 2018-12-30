@@ -229,8 +229,7 @@ echo "Done checking."
 
 # Make directories
 
-mkdir -p $dirname/js
-[ $? -ne 0 ] && fatal "Please validate the directory name (DIRNAME)"
+mkdir -p -- $dirname/js
 mkdir $dirname/css
 
 # Copy themes
