@@ -40,7 +40,7 @@ case $1 in
     "-h" | "--help" | "?")
         printf "\
 reveal-init: Create a new Reveal.js presentation project from files in \$REVEAL_PATH\n\
-USAGE: reveal-init [-h|--help|?|--help-page|--version] [ [-d DIR] [-t TITLE]\n\
+USAGE: reveal-init [-h|--help|?|-v|--version] [ [-d DIR] [-t TITLE]\n\
                    [-f THEME] [--plugin PLUGINS -] [--header HEADER] [-n NUM]\n\
                    [--short-tab|--long-tab] DIRNAME ]\n\n\
   -h, --help, ?        : Print this help and exit.\n\
