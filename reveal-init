@@ -169,9 +169,12 @@ done
 # === CHECK $REVEAL_PATH ===
 
 if [ -z $REVEAL_PATH ]; then
-    warn "\$REVEAL_PATH is empty"
-    printf "Is it:\n  1: The current directory\n  2: You forgot to set a value for it?\n"
-    read -p "[1|2] " rpe_c
+    warn "\$REVEAL_PATH is not set"
+    echo "reveal-init won't work without \$REVEAL_PATH, what now?"
+    echo "    1: Use the current directory as \$REVEAL_PATH (temporary)"
+    echo "    2: Set a value for \$REVEAL_PATH (temporary)"
+    echo "    3: Abort and set a permanent value for \$REVEAL_PATH"
+    read -p "[1|2|3] " rpe_c
 
     case $rpe_c in
         1)
@@ -179,12 +182,16 @@ if [ -z $REVEAL_PATH ]; then
             REVEAL_PATH="."
             ;;
         2)
+            read -p "\$REVEAL_PATH: " REVEAL_PATH
+            [ -z $REVEAL_PATH ] && fatal "Invalid value for \$REVEAL_PATH"
+            ;;
+        3)
             echo "Then go set a value for it with 'export'"
             echo "Aborting..."
             exit 1
             ;;
         *)
-            fatal "Invalid option, aborting.." exit 1
+            fatal "Invalid option, aborting.."
             ;;
     esac
 fi
@@ -310,15 +317,15 @@ else
 
         # Guess plugin's index JavaScript file from the plugin's directory name
 
-        posb_fname=("$plugin.js" "plugin:0:${#plugin}-3}.js" "$plugin" "script.js" "index.js")
+        posb_fname=("$plugin.js" "${plugin:0:${#plugin}-3}.js" "$plugin" "script.js" "index.js")
 
-        for tfname in $posb_fname
+        for tfname in ${posb_fname[@]}
         do
-            if [ -f $dirname/plugin/$plugin/${tfname:0:${#tfname}-3}.min.js ]
+            if [[ -f $dirname/plugin/$plugin/${tfname:0:${#tfname}-3}.min.js ]]
             then
                 js_indexf=${tfname:0:${#tfname}-3}.min.js
                 break
-            elif [ -f $dirname/plugin/$plugin/$tfname ]
+            elif [[ -f $dirname/plugin/$plugin/$tfname ]]
             then
                 js_indexf=$tfname
                 break
