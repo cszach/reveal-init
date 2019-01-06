@@ -128,7 +128,7 @@ do
             fi
             opt=""
             ;;
-        "-plugin" | "--plugin")
+        "-plugin" | "--plugin" | "-plugins" | "--plugins")
             if [[ $1 != "-" ]]; then
                 [ -d $REVEAL_PATH/plugin/$1 ] \
                   && [[ $plugins != "-" ]] && plugins="$plugins$1 " \
@@ -150,7 +150,8 @@ do
         *)
             case $1 in
                 "-d" | "-t" | "-title" | "--title" | "-f" | "-theme" | "--theme" \
-                | "-plugin" | "--plugin" | "-header" | "--header" | "-n")
+                | "-plugin" | "--plugin" | | "-plugins" | | "--plugins" \
+                | "-header" | "--header" | "-n")
                     opt=$1;;
                 "--short-tab") t="  ";;
                 "--long-tab") t="    ";;
