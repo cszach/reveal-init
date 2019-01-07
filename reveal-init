@@ -40,30 +40,31 @@ case $1 in
     "-h" | "--help" | "?")
         printf "\
 reveal-init: Create a new Reveal.js presentation project from files in \$REVEAL_PATH\n\
-USAGE: reveal-init [-h|--help|?|-v|--version] [ [-d DIR] [-t TITLE]\n\
-                   [-f THEME] [--plugin PLUGINS -] [--header HEADER] [-n NUM]\n\
+USAGE: reveal-init [-h|--help|?|-v|--version] [ [-d DIR] [-t TITLE] [-f THEME]\n\
+                   [--plugin[s] PLUGINS -] [--header HEADER] [-n NUM]\n\
                    [--short-tab|--long-tab] DIRNAME ]\n\n\
-  -h, --help, ?        : Print this help and exit.\n\
-  -v, --version        : Print version and exit.\n\
-  -d DIR               : Set DIR as \$REVEAL_PATH (temporary).\n\
-  -t, --title TITLE    : Set presentation's <title>.\n\
-  -f, --theme THEME    : Theme (found in \$REVEAL_PATH/css/theme as a CSS file)\n\
-                         to import. If THEME is \"all\", the script will import\n\
-                         all themes. If THEME is \"-\", the script will not\n\
-                         import any theme.\n\
-                         Otherwise, import \$REVEAL_PATH/css/theme/THEME.css.\n\
-      --plugin PLUGINS : Plugins (found in \$REVEAL_PATH/plugin, usually as a\n\
-                         directory) to import. PLUGINS is where the plugins are\n\
-                         listed, separated with a space character. The list\n\
-                         must be ended with a dash (\"-\").\n\
-      --header HEADER  : Add a <h1>HEADER</h1> in the first slide. Set HEADER\n\
-                         to \"_TITLE\" to make HEADER the same as TITLE\n\
-                         (specified by -t or --title).\n\
-  -n NUM               : Create NUM empty non-vertical slide(s).\n\
-                         With --header: Create NUM empty non-vertical slide(s)\n\
-                         after the first slide.\n\
-      --short-tab      : Use 2-space tabs in index.html.\n\
-      --long-tab       : Use 4-space tabs in index.html (default).\n\n\
+  -h, --help, ?           Print this help and exit.\n\
+  -v, --version           Print version and exit.\n\
+  -d DIR                  Set DIR as \$REVEAL_PATH (temporary).\n\
+  -t, --title TITLE       Set presentation's <title>.\n\
+  -f, --theme THEME       Theme (found in \$REVEAL_PATH/css/theme as a CSS file)\n\
+                          to import. If THEME is \"all\", the script will import\n\
+                          all themes. If THEME is \"-\", the script will not\n\
+                          import any theme.\n\
+                          Otherwise, import \$REVEAL_PATH/css/theme/THEME.css.\n\
+      --plugin PLUGINS    Plugins (found in \$REVEAL_PATH/plugin, usually as a\n\
+                          directory) to import. PLUGINS is where the plugins are\n\
+                          listed, separated with a space character. The list\n\
+                          must be ended with a dash (\"-\").\n\
+      --plugins PLUGINS   Same as --plugin.\n\
+      --header HEADER     Add a <h1>HEADER</h1> in the first slide. Set HEADER\n\
+                          to \"_TITLE\" to make HEADER the same as TITLE\n\
+                          (specified by -t or --title).\n\
+  -n NUM                  Create NUM empty non-vertical slide(s).\n\
+                          With --header: Create NUM empty non-vertical slide(s)\n\
+                          after the first slide.\n\
+      --short-tab         Use 2-space tabs in index.html.\n\
+      --long-tab          Use 4-space tabs in index.html (default).\n\n\
 ABOUT \$REVEAL_PATH:\n\n\
     \$REVEAL_PATH is the environment variable that this script uses to import\n\
   files from. It should be Reveal.js project directory (e.g. cloned from\n\
@@ -71,20 +72,7 @@ ABOUT \$REVEAL_PATH:\n\n\
   directory structure (see \"Folder Structure\" section in Reveal.js project's\n\
   README for a basic reference). You should set \$REVEAL_PATH in .bashrc or any\n\
   script with similar functionality that you are using with, for example:\n\n\
-    export REVEAL_PATH=\"\$HOME/Projects/Forks/reveal.js\"\n\n\
-EXAMPLES\n\n\
-  1. Create a new project in a directory named \"new_project\". Presentation's
-  title is \"My Reveal.js presentation\".\n\n\
-    reveal-init --title \"My Reveal.js presentation\" new_project\n\n\
-  2. Create a new slide deck titled \"Using Reveal.js\" with 2 plugins: notes\n\
-  and multiplex. Theme is black.\n\n\
-    reveal-init -t \"Using Reveal.js\" --plugin notes multiplex - -f black use_reveal\n\n\
-  3. Create a new slide deck titled \"Boring slides...\" with no theme.\n\n\
-    reveal-init -t \"Boring slides...\" --theme - boring_deck\n\n\
-  4. Create a deck with 5 slides, one of which contains the big header.\n\n\
-    reveal-init -n 5 -t \"My point of view\" --header _TITLE -f sky inspiring_slides\n\n\
-  5. Create a barebone slide deck\n\n\
-    reveal-init barebone\n"
+    export REVEAL_PATH=\"\$HOME/Projects/Forks/reveal.js\"\n"
         exit 0
         ;;
     "-v" | "--version")
@@ -150,7 +138,7 @@ do
         *)
             case $1 in
                 "-d" | "-t" | "-title" | "--title" | "-f" | "-theme" | "--theme" \
-                | "-plugin" | "--plugin" | | "-plugins" | | "--plugins" \
+                | "-plugin" | "--plugin" | "-plugins" | "--plugins" \
                 | "-header" | "--header" | "-n")
                     opt=$1;;
                 "--short-tab") t="  ";;
