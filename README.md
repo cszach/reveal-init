@@ -256,6 +256,9 @@ a clone of a fork of it.
 5. Run `reveal-init ?` to learn how to use it.
 6. Start sprinkling magic. :sunglasses:
 
+For more information, please consult
+[the `reveal-init` wiki](https://github.com/NOVAglow/reveal-init/wiki).
+
 :page_with_curl: License
 ------------------------
 
