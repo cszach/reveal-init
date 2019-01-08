@@ -6,6 +6,8 @@ reveal-init
 copies necessary files from an existing clone of the Reveal.js repository on
 your computer into a new directory.
 
+> More information can be found in [the wiki](wiki)
+
 1. [Why?](#thinking-why)
 2. [Demos](#sunglasses-just-reveal-init-and-see-what-youve-got)
 3. [Features](#sparkles-nice-features)
@@ -257,7 +259,7 @@ a clone of a fork of it.
 6. Start sprinkling magic. :sunglasses:
 
 For more information, please consult
-[the `reveal-init` wiki](https://github.com/NOVAglow/reveal-init/wiki).
+[the `reveal-init` wiki](wiki).
 
 :page_with_curl: License
 ------------------------
