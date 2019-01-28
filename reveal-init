@@ -221,40 +221,40 @@ echo "Done checking."
 # Make directories
 
 mkdir -p -- $dirname/js
-mkdir $dirname/css
+mkdir -- $dirname/css
 
 # Copy themes
 
 [[ $theme != "-" ]] && mkdir $dirname/css/theme && case $theme in
     "*")
-        cp $REVEAL_PATH/css/theme/*.css \
+        cp -- $REVEAL_PATH/css/theme/*.css \
             $REVEAL_PATH/css/theme/source/*.scss $dirname/css/theme/
         ;;
     *)
-        cp $REVEAL_PATH/css/theme/$theme.css $dirname/css/theme/$theme.css
+        cp -- $REVEAL_PATH/css/theme/$theme.css $dirname/css/theme/$theme.css
         [ -f $REVEAL_PATH/css/theme/source/$theme.scss ] && \
-            cp $REVEAL_PATH/css/theme/source/$theme.scss $dirname/css/theme/$theme.scss
+            cp -- $REVEAL_PATH/css/theme/source/$theme.scss $dirname/css/theme/$theme.scss
         ;;
 esac
 
 # Copy plugins
 
-[[ $plugins != "-" ]] && mkdir $dirname/plugin && for plugin in $plugins; do
-    cp -r $REVEAL_PATH/plugin/$plugin $dirname/plugin/$plugin
+[[ $plugins != "-" ]] && mkdir -- $dirname/plugin && for plugin in $plugins; do
+    cp -r -- $REVEAL_PATH/plugin/$plugin $dirname/plugin/$plugin
 done
 
 # Copy js/ (supposedly contains reveal.js) and reveal.css
 
-cp -r $REVEAL_PATH/js/* $dirname/js/
-cp $REVEAL_PATH/css/reveal.css $dirname/css/reveal.css
+cp -r -- $REVEAL_PATH/js/* $dirname/js/
+cp -- $REVEAL_PATH/css/reveal.css $dirname/css/reveal.css
 
 # Copy lib/
 
-[ -d $REVEAL_PATH/lib ] && cp -r $REVEAL_PATH/lib $dirname/lib
+[ -d $REVEAL_PATH/lib ] && cp -r -- $REVEAL_PATH/lib $dirname/lib
 
 # Create index.html
 
-touch $dirname/index.html
+touch -- $dirname/index.html
 indexf="$dirname/index.html"
 
 printf "<!DOCTYPE html>\n<html>\n$t<head>\n$t$t<meta charset=\"utf-8\">\n\
