@@ -275,3 +275,16 @@ belongs to the Public Domain. From the license text:
 > binary, for any purpose, commercial or non-commercial, and by any
 > means.
 
+In some countries, this may not be legally possible. If so:
+
+> I grant you the right to use this work for any purpose without any condition,
+> unless there exist conditions required by law.
+
+The above statement is the written permission from the author and may be
+referred to as the "prior written permission" or any phrase that conveys the
+same meaning.
+
+The same terms (either The Unlicense's terms or the written permission) are also
+applied to other assets presented in this repository, excluding the copy of The
+Unlicense.
+
