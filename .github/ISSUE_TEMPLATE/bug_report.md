@@ -7,32 +7,35 @@ assignees: ''
 
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+Description
+-----------
 
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+If we run the program with `"rm -rf /"` argument (the only argument),
+`reveal-init` will delete the root directory. However, it is expected that a
+directory named "`rm -rf /`" will be created.
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+Steps to reproduce
+------------------
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+```shell
+su
+reveal-init "rm -rf /"
+```
 
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
+Environment
+-----------
 
-**Smartphone (please complete the following information):**
- - Device: [e.g. iPhone6]
- - OS: [e.g. iOS8.1]
- - Browser [e.g. stock browser, safari]
- - Version [e.g. 22]
+<!--
+    NOTE: Delete this comment when you're done.
 
-**Additional context**
-Add any other context about the problem here.
+    - Operating system: Your operating system with release number and
+    (optionally) operating system family (e.g. Ubuntu 18.10 GNU/Linux)
+    - Shell interpreter: All Shell interpreters (and their versions) that, when
+    the steps to reproduce are done, the bug gets triggered (e.g. bash 4.4.21)
+    - Program version: All versions of `reveal-init` that have the bug (e.g 1.0,
+    1.1 Alpha, 1.1-rc) (hint: run `reveal-init --version`)
+-->
+
+- **Operating system**:
+- **Shell interpreter**:
+- **Program version**:
