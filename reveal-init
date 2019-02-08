@@ -18,10 +18,12 @@ git="false"  # Initiate a Git repository?
 
 # === PROGRAM'S VARIABLES ===
 
-VERSION="1.1"
+VERSION="master"
 t="    "   # Tab
 n_err=0    # Number of errors
 n_slide=0  # Number of empty non-vertical slides to create
+
+# ===========================
 
 function warn() {
     printf "\033[1;33mWARNING\033[0m $1.\n"
@@ -342,5 +344,4 @@ fi
 printf "$t</body>\n</html>\n" >> $indexf
 
 echo "Generated a new slide deck at $dirname."
-
-# ===========================
+exit 0
