@@ -1,20 +1,20 @@
 ---
 name: Feature request
-about: Suggest an idea for this project
+about: Request a new feature that solves an existing problem
 title: ''
 labels: enhancement
 assignees: ''
 
 ---
 
-**Is your feature request related to a problem? Please describe.**
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+The problem I'm having with `reveal-init`
+-----------------------------------------
 
-**Describe the solution you'd like**
-A clear and concise description of what you want to happen.
+I'm always frustrated every time I want to start a new Reveal.js project as a
+Git repository.
 
-**Describe alternatives you've considered**
-A clear and concise description of any alternative solutions or features you've considered.
+Proposed solution
+-----------------
 
-**Additional context**
-Add any other context or screenshots about the feature request here.
+I think you should add an option to initiate Reveal.js projects as Git repos
+(e.g. `--git`).
