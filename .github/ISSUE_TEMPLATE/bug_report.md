@@ -13,8 +13,8 @@ Description
 <!-- Describe and specify the problem, the expected and actual behaviors. -->
 
 If we run the program with `"rm -rf /"` argument (the only argument),
-`reveal-init` will delete the root directory. However, it is expected that a
-directory named "`rm -rf /`" will be created.
+`reveal-init` will delete the root directory. However, `reveal-init` is expected
+to create a new Reveal.js project in a directory named "`rm -rf /`".
 
 Steps to reproduce
 ------------------
