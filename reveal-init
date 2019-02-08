@@ -8,10 +8,11 @@
 
 # === MAIN VARIABLES ===
 
-dirname=""  # Project directory of the slide deck
-title=""    # Title of the presentation (which goes into <title></title>)
-theme=""    # Theme for the slide deck
-plugins=""  # List of plugins (separated by white spaces)
+dirname=""   # Project directory of the slide deck
+title=""     # Title of the presentation (which goes into <title></title>)
+theme=""     # Theme for the slide deck
+plugins=""   # List of plugins (separated by white spaces)
+git="false"  # Initiate a Git repository?
 
 # ======================
 
@@ -46,6 +47,7 @@ USAGE: reveal-init [-h|--help|?|-v|--version] [ [-d DIR] [-t TITLE] [-f THEME]\n
   -h, --help, ?           Print this help and exit.\n\
   -v, --version           Print version and exit.\n\
   -d DIR                  Set DIR as \$REVEAL_PATH (temporary).\n\
+      --git               Initiate project as a Git repository.\n\
   -t, --title TITLE       Set presentation's <title>.\n\
   -f, --theme THEME       Theme (found in \$REVEAL_PATH/css/theme as a CSS file)\n\
                           to import. If THEME is \"all\", the script will import\n\
@@ -141,6 +143,11 @@ do
                 | "-plugin" | "--plugin" | "-plugins" | "--plugins" \
                 | "-header" | "--header" | "-n")
                     opt=$1;;
+                "--git")
+                    [ -z $(command -v git) ] \
+                        && warn "--git: Git is not installed, option ignored" \
+                        || git="true"
+                    ;;
                 "--short-tab") t="  ";;
                 "--long-tab") t="    ";;
                 *) err "Invalid option '$1', aborting..." && exit 1;;
@@ -220,6 +227,7 @@ echo "Done checking."
 
 # Make directories
 
+[ $git == "true" ] && git init -- $dirname
 mkdir -p -- $dirname/js
 mkdir -- $dirname/css
 
