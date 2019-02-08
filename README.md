@@ -245,7 +245,8 @@ reveal-init -t "Boring slides | Boring Inc." --header "There's nothing here.<br>
 2. :exclamation: Make a big header for your presentation
 3. :art: Import 0, 1, or many themes
 4. :gear: Import plugins too
-5. :bowtie: 2-space tabs or 4-space tabs
+5. :shipit: Initiate the project as a Git repository
+6. :bowtie: 2-space tabs or 4-space tabs
 
 :computer: How to use `reveal-init`
 -----------------------------------
@@ -287,4 +288,3 @@ same meaning.
 The same terms (either The Unlicense's terms or the written permission) are also
 applied to other assets presented in this repository, excluding the copy of The
 Unlicense.
-
