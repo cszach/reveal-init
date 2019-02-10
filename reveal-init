@@ -107,7 +107,7 @@ opt=""
 for arg in "$@"
 do
     if [ $# -eq 1 ]; then
-        [ -d $1 ] && err "Directory '$1' exists" && exit 1
+        [ -d "$1" ] && err "Directory '$1' exists" && exit 1
         dirname=$1 && break
     fi
 
@@ -125,7 +125,7 @@ do
                 theme="-"
             elif [[ $1 == "all" ]] || [[ $1 == "*" ]]; then
                 theme="*"
-            elif [ -f $REVEAL_PATH/css/theme/$1.css ]; then
+            elif [ -f "$REVEAL_PATH"/css/theme/$1.css ]; then
                 theme="$1"
             else
                 err "Theme '$1' ($REVEAL_PATH/css/theme/$1.css) not found"
@@ -134,9 +134,9 @@ do
             ;;
         "-plugin" | "--plugin" | "-plugins" | "--plugins")
             if [[ $1 != "-" ]]; then
-                [ -d $REVEAL_PATH/plugin/$1 ] \
+                [ -d "$REVEAL_PATH"/plugin/$1 ] \
                   && [[ $plugins != "-" ]] && plugins="$plugins$1 " \
-                  || err "Plugin '$1' ($REVEAL_PATH/plugin/$1) not found"
+                  || err "Plugin '$1' ("$REVEAL_PATH"/plugin/$1) not found"
             else
                 opt=""
             fi
@@ -178,7 +178,7 @@ done
 
 # === CHECK $REVEAL_PATH ===
 
-if [ -z $REVEAL_PATH ]; then
+if [ -z "$REVEAL_PATH" ]; then
     warn "\$REVEAL_PATH is not set"
     echo "reveal-init won't work without \$REVEAL_PATH, what now?"
     echo "    1: Use the current directory as \$REVEAL_PATH (temporary)"
@@ -193,7 +193,7 @@ if [ -z $REVEAL_PATH ]; then
             ;;
         2)
             read -p "\$REVEAL_PATH: " REVEAL_PATH
-            [ -z $REVEAL_PATH ] && fatal "Invalid value for \$REVEAL_PATH"
+            [ -z "$REVEAL_PATH" ] && fatal "Invalid value for \$REVEAL_PATH"
             ;;
         3)
             echo "Then go set a value for it with 'export'"
@@ -217,19 +217,19 @@ fi
 
 echo "Checking \$REVEAL_PATH..."
 
-! [ -d $REVEAL_PATH ] && fatal "\$REVEAL_PATH ($REVEAL_PATH) not found"
+! [ -d "$REVEAL_PATH" ] && fatal "\$REVEAL_PATH ($REVEAL_PATH) not found"
 
-! [ -f $REVEAL_PATH/css/reveal.css ] && err "$REVEAL_PATH/css/reveal.css not found"
-! [ -d $REVEAL_PATH/css/theme ] || [[ -z $(ls $REVEAL_PATH/css/theme) ]] && \
+! [ -f "$REVEAL_PATH"/css/reveal.css ] && err "$REVEAL_PATH/css/reveal.css not found"
+! [ -d "$REVEAL_PATH"/css/theme ] || [[ -z $(ls "$REVEAL_PATH"/css/theme) ]] && \
     warn "No theme found" && theme="-"
 
-! [ -f $REVEAL_PATH/js/reveal.js ] && err "$REVEAL_PATH/js/reveal.js not found"
+! [ -f "$REVEAL_PATH"/js/reveal.js ] && err "$REVEAL_PATH/js/reveal.js not found"
 
-! [ -f $REVEAL_PATH/lib/js/head.min.js ] && \
+! [ -f "$REVEAL_PATH"/lib/js/head.min.js ] && \
     warn "$REVEAL_PATH/lib/js/head.min.js not found, plugins won't be loaded" && \
     plugins="-"
 
-! [ -d $REVEAL_PATH/plugin ] && warn "No plugin found" && plugins="-"
+! [ -d "$REVEAL_PATH"/plugin ] && warn "No plugin found" && plugins="-"
 
 [ $n_err -gt 0 ] && fatal "Fix the above problem(s) and try again"
 
@@ -241,43 +241,43 @@ echo "Done checking."
 
 # Make directories
 
-[ $git == "true" ] && git init -- $dirname
-mkdir -p -- $dirname/js
-mkdir -- $dirname/css
+[ $git == "true" ] && git init -- "$dirname"
+mkdir -p -- "$dirname"/js
+mkdir -- "$dirname"/css
 
 # Copy themes
 
-[[ $theme != "-" ]] && mkdir $dirname/css/theme && case $theme in
+[[ $theme != "-" ]] && mkdir "$dirname"/css/theme && case $theme in
     "*")
-        cp -- $REVEAL_PATH/css/theme/*.css \
-            $REVEAL_PATH/css/theme/source/*.scss $dirname/css/theme/
+        cp -- "$REVEAL_PATH"/css/theme/*.css \
+            "$REVEAL_PATH"/css/theme/source/*.scss "$dirname"/css/theme/
         ;;
     *)
-        cp -- $REVEAL_PATH/css/theme/$theme.css $dirname/css/theme/$theme.css
-        [ -f $REVEAL_PATH/css/theme/source/$theme.scss ] && \
-            cp -- $REVEAL_PATH/css/theme/source/$theme.scss $dirname/css/theme/$theme.scss
+        cp -- "$REVEAL_PATH"/css/theme/$theme.css "$dirname"/css/theme/$theme.css
+        [ -f "$REVEAL_PATH"/css/theme/source/$theme.scss ] && \
+            cp -- "$REVEAL_PATH"/css/theme/source/$theme.scss "$dirname"/css/theme/$theme.scss
         ;;
 esac
 
 # Copy plugins
 
-[[ $plugins != "-" ]] && mkdir -- $dirname/plugin && for plugin in $plugins; do
-    cp -r -- $REVEAL_PATH/plugin/$plugin $dirname/plugin/$plugin
+[[ $plugins != "-" ]] && mkdir -- "$dirname"/plugin && for plugin in $plugins; do
+    cp -r -- "$REVEAL_PATH"/plugin/$plugin "$dirname"/plugin/$plugin
 done
 
 # Copy js/ (supposedly contains reveal.js) and reveal.css
 
-cp -r -- $REVEAL_PATH/js/* $dirname/js/
-cp -- $REVEAL_PATH/css/reveal.css $dirname/css/reveal.css
+cp -r -- "$REVEAL_PATH"/js/* "$dirname"/js/
+cp -- "$REVEAL_PATH"/css/reveal.css "$dirname"/css/reveal.css
 
 # Copy lib/
 
-[ -d $REVEAL_PATH/lib ] && cp -r -- $REVEAL_PATH/lib $dirname/lib
+[ -d "$REVEAL_PATH"/lib ] && cp -r -- "$REVEAL_PATH"/lib "$dirname"/lib
 
 # Create index.html
 
-touch -- $dirname/index.html
-indexf="$dirname/index.html"
+touch -- "$dirname"/index.html
+indexf="$dirname"/index.html
 
 printf "<!DOCTYPE html>\n<html>\n$t<head>\n$t$t<meta charset=\"utf-8\">\n\
 $t$t<meta name=\"viewport\" content=\"width=device-width\
@@ -288,12 +288,12 @@ $t$t<link rel=\"stylesheet\" href=\"css/reveal.css\">\n" > $indexf
 [[ $theme != "-" ]] && [[ $theme != "*" ]] && \
     printf "$t$t<link rel=\"stylesheet\" href=\"css/theme/$theme.css\">\n" >> $indexf
 
-[ -f $dirname/lib/css/zenburn.css ] && \
+[ -f "$dirname"/lib/css/zenburn.css ] && \
 printf \
 "\n$t$t<!-- Theme used for syntax highlighting of code -->\n\
 $t$t<link rel=\"stylesheet\" href=\"lib/css/zenburn.css\">\n" >> $indexf
 
-[ -f $dirname/lib/js/html5shiv.js ] && \
+[ -f "$dirname"/lib/js/html5shiv.js ] && \
 printf \
 "\n$t$t<!--[if lt IE 9]>\n$t$t$t<script src=\"lib/js/html5shiv.js\">\
 </script>\n$t$t<![endif]-->\n" >> $indexf
@@ -313,7 +313,7 @@ fi
 
 printf "$t$t$t</div>\n$t$t</div>\n\n" >> $indexf
 
-[ -f $dirname/lib/js/head.min.js ] && \
+[ -f "$dirname"/lib/js/head.min.js ] && \
     printf "$t$t<script src=\"lib/js/head.min.js\"></script>\n" >> $indexf
 
 printf "$t$t<script src=\"js/reveal.js\"></script>\n\n" >> $indexf
@@ -332,11 +332,11 @@ else
 
         for tfname in ${posb_fname[@]}
         do
-            if [[ -f $dirname/plugin/$plugin/${tfname:0:${#tfname}-3}.min.js ]]
+            if [[ -f "$dirname"/plugin/$plugin/${tfname:0:${#tfname}-3}.min.js ]]
             then
                 js_indexf=${tfname:0:${#tfname}-3}.min.js
                 break
-            elif [[ -f $dirname/plugin/$plugin/$tfname ]]
+            elif [[ -f "$dirname"/plugin/$plugin/$tfname ]]
             then
                 js_indexf=$tfname
                 break
