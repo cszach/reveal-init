@@ -18,7 +18,7 @@ git="false"  # Initiate a Git repository?
 
 # === PROGRAM'S VARIABLES ===
 
-VERSION="2.0"
+VERSION="master"
 t="    "   # Tab
 n_err=0    # Number of errors
 n_slide=0  # Number of empty non-vertical slides to create
@@ -32,8 +32,8 @@ n_slide=0  # Number of empty non-vertical slides to create
 # are your Shell's built-ins.
 
 alias printf="/usr/bin/printf" echo="/usr/bin/echo" cp="/usr/bin/cp" \
-    ls="/usr/bin/ls" mkdir="/usr/bin/mkdir" read="/usr/bin/read" \
-    touch="/usr/bin/touch" command="/usr/bin/command"
+    ls="/usr/bin/ls" mkdir="/usr/bin/mkdir" touch="/usr/bin/touch" \
+    command="/usr/bin/command"
 
 # ===============
 
@@ -184,23 +184,25 @@ if [ -z "$REVEAL_PATH" ]; then
     echo "    1: Use the current directory as \$REVEAL_PATH (temporary)"
     echo "    2: Set a value for \$REVEAL_PATH (temporary)"
     echo "    3: Abort and set a permanent value for \$REVEAL_PATH"
-    read -p "[1|2|3] " rpe_c
+    read -p "[1|2|3] " option
+    echo $option
 
-    case $rpe_c in
-        1)
+    case "$option" in
+        "1")
             echo "Okay, \$REVEAL_PATH is the current directory"
             REVEAL_PATH="."
             ;;
-        2)
+        "2")
             read -p "\$REVEAL_PATH: " REVEAL_PATH
             [ -z "$REVEAL_PATH" ] && fatal "Invalid value for \$REVEAL_PATH"
             ;;
-        3)
+        "3")
             echo "Then go set a value for it with 'export'"
             echo "Aborting..."
             exit 1
             ;;
         *)
+            echo "$option"
             fatal "Invalid option, aborting.."
             ;;
     esac
