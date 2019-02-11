@@ -358,5 +358,5 @@ fi
 printf "$t</body>\n</html>\n" >> $indexf
 
 echo "Generated a new slide deck at $dirname."
-unalias printf echo read ls mkdir cp touch command
+unalias printf echo ls mkdir cp touch command
 exit 0
