@@ -222,7 +222,7 @@ echo "Checking \$REVEAL_PATH..."
 ! [ -d "$REVEAL_PATH" ] && fatal "\$REVEAL_PATH ($REVEAL_PATH) not found"
 
 ! [ -f "$REVEAL_PATH"/css/reveal.css ] && err "$REVEAL_PATH/css/reveal.css not found"
-! [ -d "$REVEAL_PATH"/css/theme ] || [[ -z $(ls "$REVEAL_PATH"/css/theme) ]] && \
+! [ -d "$REVEAL_PATH"/css/theme ] || [[ -z $(ls -A "$REVEAL_PATH"/css/theme) ]] && \
     warn "No theme found" && theme="-"
 
 ! [ -f "$REVEAL_PATH"/js/reveal.js ] && err "$REVEAL_PATH/js/reveal.js not found"
@@ -231,7 +231,8 @@ echo "Checking \$REVEAL_PATH..."
     warn "$REVEAL_PATH/lib/js/head.min.js not found, plugins won't be loaded" && \
     plugins="-"
 
-! [ -d "$REVEAL_PATH"/plugin ] && warn "No plugin found" && plugins="-"
+! [ -d "$REVEAL_PATH"/plugin ] || [[ -z $(ls -A "$REVEAL_PATH/plugin") ]] && \
+    warn "No plugin found" && plugins="-"
 
 [ $n_err -gt 0 ] && fatal "Fix the above problem(s) and try again"
 
