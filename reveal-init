@@ -164,7 +164,7 @@ do
                     ;;
                 "--short-tab") t="  ";;
                 "--long-tab") t="    ";;
-                *) err "Invalid option '$1', aborting..." && exit 1;;
+                *) fatal "Invalid option '$1', aborting..." && exit 1;;
             esac
             ;;
     esac
