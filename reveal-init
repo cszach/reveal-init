@@ -18,7 +18,7 @@ git="false"  # Initiate a Git repository?
 
 # === PROGRAM'S VARIABLES ===
 
-VERSION="2.1"
+VERSION="master"
 t="    "   # Tab
 n_err=0    # Number of errors
 n_slide=0  # Number of empty non-vertical slides to create
