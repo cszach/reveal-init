@@ -81,12 +81,12 @@ USAGE: reveal-init [-h|--help|?|-v|--version] [ [-d DIR] [-t TITLE] [-f THEME]\n
                           after the first slide.\n\
       --short-tab         Use 2-space tabs in index.html.\n\
       --long-tab          Use 4-space tabs in index.html (default).\n\n\
-ABOUT \$REVEAL_PATH:\n\n\
-    \$REVEAL_PATH is the environment variable that this script uses to import\n\
+ABOUT REVEAL_PATH:\n\n\
+    REVEAL_PATH is a Unix environment variable that this script uses to import\n\
   files from. It should be Reveal.js project directory (e.g. cloned from\n\
   https://github.com/hakimel/reveal.js) and it should follow the orignal\n\
   directory structure (see \"Folder Structure\" section in Reveal.js project's\n\
-  README for a basic reference). You should set \$REVEAL_PATH in .bashrc or any\n\
+  README for a basic reference). You should set REVEAL_PATH in .bashrc or any\n\
   script with similar functionality that you are using with, for example:\n\n\
     export REVEAL_PATH=\"\$HOME/Projects/Forks/reveal.js\"\n"
         exit 0
@@ -179,22 +179,22 @@ done
 # === CHECK $REVEAL_PATH ===
 
 if [ -z "$REVEAL_PATH" ]; then
-    warn "\$REVEAL_PATH is not set"
-    echo "reveal-init won't work without \$REVEAL_PATH, what now?"
-    echo "    1: Use the current directory as \$REVEAL_PATH (temporary)"
-    echo "    2: Set a value for \$REVEAL_PATH (temporary)"
-    echo "    3: Abort and set a permanent value for \$REVEAL_PATH"
+    warn "REVEAL_PATH is not set"
+    echo "reveal-init won't work without REVEAL_PATH, what now?"
+    echo "    1: Use the current directory as REVEAL_PATH (temporary)"
+    echo "    2: Set a value for REVEAL_PATH (temporary)"
+    echo "    3: Abort and set a permanent value for REVEAL_PATH"
     read -p "[1|2|3] " option
     echo $option
 
     case "$option" in
         "1")
-            echo "Okay, \$REVEAL_PATH is the current directory"
+            echo "Okay, REVEAL_PATH is the current directory"
             REVEAL_PATH="."
             ;;
         "2")
-            read -p "\$REVEAL_PATH: " REVEAL_PATH
-            [ -z "$REVEAL_PATH" ] && fatal "Invalid value for \$REVEAL_PATH"
+            read -p "REVEAL_PATH: " REVEAL_PATH
+            [ -z "$REVEAL_PATH" ] && fatal "Invalid value for REVEAL_PATH"
             ;;
         "3")
             echo "Then go set a value for it with 'export'"
@@ -217,9 +217,9 @@ fi
 #   - $REVEAL_PATH/lib/js/head.min.js (no plugin)
 #   - $REVEAL_PATH/plugin             (no plugin)
 
-echo "Checking \$REVEAL_PATH..."
+echo "Checking REVEAL_PATH..."
 
-! [ -d "$REVEAL_PATH" ] && fatal "\$REVEAL_PATH ($REVEAL_PATH) not found"
+! [ -d "$REVEAL_PATH" ] && fatal "REVEAL_PATH ($REVEAL_PATH) not found"
 
 ! [ -f "$REVEAL_PATH"/css/reveal.css ] && err "$REVEAL_PATH/css/reveal.css not found"
 ! [ -d "$REVEAL_PATH"/css/theme ] || [[ -z $(ls -A "$REVEAL_PATH"/css/theme) ]] && \
