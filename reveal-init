@@ -107,7 +107,7 @@ opt=""
 for arg in "$@"
 do
     if [ $# -eq 1 ]; then
-        [ -d "$1" ] && err "Directory '$1' exists" && exit 1
+        [ -d "$1" ] && fatal "Directory '$1' exists" && exit 1
         dirname=$1 && break
     fi
 
