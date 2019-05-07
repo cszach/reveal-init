@@ -78,6 +78,36 @@ function log() {
 }
 
 
+# Check if REVEAL_PATH is valid as a Reveal.js repository to begin with
+function check_reveal_path() {
+    # Must include:
+    #   - $REVEAL_PATH/css/reveal.css
+    #   - $REVEAL_PATH/js/reveal.js
+    #
+    # Warn if absent:
+    #   - $REVEAL_PATH/css/theme          (no theme)
+    #   - $REVEAL_PATH/lib/js/head.min.js (no plugin)
+    #   - $REVEAL_PATH/plugin             (no plugin)
+
+    log "Checking REVEAL_PATH ($REVEAL_PATH)..."
+
+    ! [ -d "$REVEAL_PATH" ] && log "REVEAL_PATH ($REVEAL_PATH) not found" 3
+
+    ! [ -f "$REVEAL_PATH"/css/reveal.css ] && log "$REVEAL_PATH/css/reveal.css not found" 2
+    ! [ -d "$REVEAL_PATH"/css/theme ] || [[ -z $(ls -A "$REVEAL_PATH"/css/theme) ]] && \
+        log "No theme found" && theme="-" 1
+
+    ! [ -f "$REVEAL_PATH"/js/reveal.js ] && log "$REVEAL_PATH/js/reveal.js not found" 2
+
+    ! [ -f "$REVEAL_PATH"/lib/js/head.min.js ] && \
+        log "$REVEAL_PATH/lib/js/head.min.js not found, plugins won't be loaded" 1 && \
+        plugins="-"
+
+    ! [ -d "$REVEAL_PATH"/plugin ] || [[ -z $(ls -A "$REVEAL_PATH/plugin") ]] && \
+        log "No plugin found" && plugins="-" 1
+}
+
+
 # Given a directory path, check if its last character is "/"
 # and echo the path with the forward slash removed.
 function reformat_path() {
@@ -99,6 +129,10 @@ USAGE: reveal-init [-h|--help|?|-v|--version] [ [-d DIR] [-t TITLE] [-f THEME]\n
       --version           Print version and exit.\n\
   -v, --verbose           Inform what the program is doing to stdout.\n\
   -d DIR                  Set DIR as \$REVEAL_PATH (temporary).\n\
+  -c, --check             Check if REVEAL_PATH is valid.\n\
+                          Once this option is encountered, reveal-init will\n\
+                          check REVEAL_PATH and terminate afterwards. All other\n\
+                          options are ignored.\n\
       --git               Initiate project as a Git repository.\n\
   -t, --title TITLE       Set presentation's <title>.\n\
   -f, --theme THEME       Theme (found in \$REVEAL_PATH/css/theme as a CSS file)\n\
@@ -145,7 +179,7 @@ opt=""
 
 for arg in "$@"
 do
-    if [ $# -eq 1 ]; then
+    if [ $# -eq 1 ] && [[ $1 != "-c" ]] && [[ $1 != "--check" ]]; then
         [ -d "$1" ] && log "Directory '$1' exists" 3
         dirname=$1 && break
     fi
@@ -195,6 +229,19 @@ do
                 "-d" | "-t" | "-title" | "--title" | "-f" | "-theme" | "--theme" \
                 | "-plugin" | "--plugin" | "-plugins" | "--plugins" \
                 | "-header" | "--header" | "-n") opt=$1;;
+
+                "-c" | "--check")
+                    verbose=1
+                    check_reveal_path
+                    log "\r\033[1;32mINFO   \033[0m Done checking REVEAL_PATH."
+                    if [ $n_err -gt 0 ]; then
+                        log "\r\033[1;31mINFO   \033[0m $n_err error(s) found. Please fix them."
+                        printf "$t$t \bLog messages can be found in $logfile\n"
+                    else
+                        log "\r\033[1;32mINFO   \033[0m REVEAL_PATH is valid."
+                    fi
+                    exit 0
+                    ;;
 
                 "-v" | "--verbose") verbose=1;;
 
@@ -248,32 +295,7 @@ if [ -z "$REVEAL_PATH" ]; then
     esac
 fi
 
-# Must include:
-#   - $REVEAL_PATH/css/reveal.css
-#   - $REVEAL_PATH/js/reveal.js
-#
-# Warn if absent:
-#   - $REVEAL_PATH/css/theme          (no theme)
-#   - $REVEAL_PATH/lib/js/head.min.js (no plugin)
-#   - $REVEAL_PATH/plugin             (no plugin)
-
-log "Checking REVEAL_PATH..."
-
-! [ -d "$REVEAL_PATH" ] && log "REVEAL_PATH ($REVEAL_PATH) not found" 3
-
-! [ -f "$REVEAL_PATH"/css/reveal.css ] && log "$REVEAL_PATH/css/reveal.css not found" 2
-! [ -d "$REVEAL_PATH"/css/theme ] || [[ -z $(ls -A "$REVEAL_PATH"/css/theme) ]] && \
-    log "No theme found" && theme="-" 1
-
-! [ -f "$REVEAL_PATH"/js/reveal.js ] && log "$REVEAL_PATH/js/reveal.js not found" 2
-
-! [ -f "$REVEAL_PATH"/lib/js/head.min.js ] && \
-    log "$REVEAL_PATH/lib/js/head.min.js not found, plugins won't be loaded" 1 && \
-    plugins="-"
-
-! [ -d "$REVEAL_PATH"/plugin ] || [[ -z $(ls -A "$REVEAL_PATH/plugin") ]] && \
-    log "No plugin found" && plugins="-" 1
-
+check_reveal_path
 [ $n_err -gt 0 ] && log "Fix the above problem(s) and try again" 3 1
 
 # ==========================
