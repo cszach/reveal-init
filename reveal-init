@@ -41,18 +41,19 @@ alias printf="/usr/bin/printf" echo="/usr/bin/echo" cp="/usr/bin/cp" \
 
 # ===============
 
-# A simple function for logging. Requires 3 parameter
+# A simple function for logging. Requires 3 parameters
 #     $1: Log message
 #     $2: Severity of the event being logged
 #     $3: Put a message to remind the user that log messages are kept in
 #         $logfile (only touched if $2 is "3" or "fatal")
 #
 # Valid values for the second parameter are:
-#    0 info       No severity, everything is working as expected
-#    1 warn       Mild severity, something is wrong but can be easily manually fixed later
-#    2 err        High severity, something is wrong and can hardly be fixed
-#      error      Same as err
-#    3 fatal      Extreme severity, the program cannot further work
+#    0 info       No severity, everything is working as expected.
+#    1 warn       Mild severity, something is wrong but can be easily manually
+#                 fixed later.
+#    2 err        High severity, something is wrong and can hardly be fixed.
+#      error      Same as err.
+#    3 fatal      Extreme severity, the program cannot further work.
 #
 # By design, any other value for the second parameter is treated as "info". This
 # means for severity of 'info', the second parameter may be omitted.
@@ -78,7 +79,7 @@ function log() {
 
 
 # Given a directory path, check if its last character is "/"
-# and return the path with the forward slash removed.
+# and echo the path with the forward slash removed.
 function reformat_path() {
     [[ ${1:$(echo -n $1 | wc -c)-1:1} == "/" ]]  \
         && echo -n ${1:0:$(echo -n $1 | wc -c)-1} \
@@ -414,5 +415,5 @@ printf "$t</body>\n</html>\n" >> $indexf
 verbose=1  # It is necessary to print the following log message to stdout
 log "\r\033[1;32mINFO   \033[0m Generated a new slide deck at $dirname."
 rm $logfile
-unalias printf echo ls mkdir cp touch command
+unalias printf echo ls mkdir cp touch command wc
 exit 0
