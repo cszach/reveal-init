@@ -12,6 +12,7 @@ dirname=""   # Project directory of the slide deck
 title=""     # Title of the presentation (which goes into <title></title>)
 theme=""     # Theme for the slide deck
 plugins=""   # List of plugins (separated by white spaces)
+n_slide=0    # Number of empty non-vertical slides to create
 git=0        # Initiate a Git repository? (0 = false, true otherwise)
 
 verbose=0    # Be verbose? (0 = no, otherwise yes)
@@ -20,11 +21,11 @@ logfile="$(mktemp /tmp/reveal-init-XXXXXXXX)"  # Path to log file
 # ======================
 
 # === PROGRAM'S VARIABLES ===
+# These values remain constant throughout the program
 
-VERSION="master"
-t="    "   # Tab
-n_err=0    # Number of errors
-n_slide=0  # Number of empty non-vertical slides to create
+VERSION="master"  # reveal-init's version
+t="    "          # Tab
+n_err=0           # Number of errors
 
 # ===========================
 
@@ -36,7 +37,7 @@ n_slide=0  # Number of empty non-vertical slides to create
 
 alias printf="/usr/bin/printf" echo="/usr/bin/echo" cp="/usr/bin/cp" \
       ls="/usr/bin/ls" mkdir="/usr/bin/mkdir" touch="/usr/bin/touch"  \
-      command="/usr/bin/command"
+      command="/usr/bin/command" wc="/usr/bin/wc"
 
 # ===============
 
@@ -64,7 +65,8 @@ function log() {
             ;;
         "3" | "fatal")
             printf "\033[1;31mFATAL  \033[0m $1\n" | tee $logfile
-            [[ $3 -ne 0 ]] && printf "        Log messages can be found in $logfile\n"
+            [[ $3 -ne 0 ]] && printf "$t$t \bLog messages can be found in $logfile\n" \
+                           || rm $logfile
             exit 1
             ;;
         *)
@@ -72,6 +74,15 @@ function log() {
             [[ $verbose != "0" ]] && printf "INFO    $1\n"
             ;;
     esac
+}
+
+
+# Given a directory path, check if its last character is "/"
+# and return the path with the forward slash removed.
+function reformat_path() {
+    [[ ${1:$(echo -n $1 | wc -c)-1:1} == "/" ]]  \
+        && echo -n ${1:0:$(echo -n $1 | wc -c)-1} \
+        || echo -n $1
 }
 
 # ===========================
@@ -124,10 +135,11 @@ ABOUT REVEAL_PATH:\n\n\
 esac
 
 [ $# -eq 0 ] && \
-    log "Directory name not given.\n        Invoke '--help' for more information" 3
+    log "Directory name not given.\n$t$t \bInvoke '--help' for more information" 3
 
 # === PROCESS OPTIONS ===
 
+REVEAL_PATH=$(reformat_path $REVEAL_PATH)
 opt=""
 
 for arg in "$@"
@@ -139,7 +151,7 @@ do
 
     case $opt in
         "-d")
-            REVEAL_PATH=$1
+            REVEAL_PATH=$(reformat_path $1)
             opt=""
             ;;
         "-t" | "-title" | "--title")
@@ -227,12 +239,10 @@ if [ -z "$REVEAL_PATH" ]; then
             ;;
         "3")
             echo "Then go set a value for it with 'export'"
-            echo "Aborting..."
-            exit 1
+            log "Aborting..." 3
             ;;
         *)
-            echo "$option"
-            log "Invalid option, aborting.." 3
+            log "Invalid option, aborting..." 3
             ;;
     esac
 fi
@@ -401,7 +411,8 @@ fi
 
 printf "$t</body>\n</html>\n" >> $indexf
 
-log "Generated a new slide deck at $dirname."
+verbose=1  # It is necessary to print the following log message to stdout
+log "\r\033[1;32mINFO   \033[0m Generated a new slide deck at $dirname."
 rm $logfile
 unalias printf echo ls mkdir cp touch command
 exit 0
