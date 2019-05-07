@@ -239,6 +239,7 @@ do
                         printf "$t$t \bLog messages can be found in $logfile\n"
                     else
                         log "\r\033[1;32mINFO   \033[0m REVEAL_PATH is valid."
+                        rm $logfile
                     fi
                     exit 0
                     ;;
