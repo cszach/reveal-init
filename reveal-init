@@ -12,16 +12,20 @@ dirname=""   # Project directory of the slide deck
 title=""     # Title of the presentation (which goes into <title></title>)
 theme=""     # Theme for the slide deck
 plugins=""   # List of plugins (separated by white spaces)
-git="false"  # Initiate a Git repository?
+n_slide=0    # Number of empty non-vertical slides to create
+git=0        # Initiate a Git repository? (0 = false, true otherwise)
+
+verbose=0    # Be verbose? (0 = no, otherwise yes)
+logfile="$(mktemp /tmp/reveal-init-XXXXXXXX)"  # Path to log file
 
 # ======================
 
 # === PROGRAM'S VARIABLES ===
+# These values remain constant throughout the program
 
-VERSION="master"
-t="    "   # Tab
-n_err=0    # Number of errors
-n_slide=0  # Number of empty non-vertical slides to create
+VERSION="master"  # reveal-init's version
+t="    "          # Tab
+n_err=0           # Number of errors
 
 # ===========================
 
@@ -32,21 +36,84 @@ n_slide=0  # Number of empty non-vertical slides to create
 # are your Shell's built-ins.
 
 alias printf="/usr/bin/printf" echo="/usr/bin/echo" cp="/usr/bin/cp" \
-    ls="/usr/bin/ls" mkdir="/usr/bin/mkdir" touch="/usr/bin/touch" \
-    command="/usr/bin/command"
+      ls="/usr/bin/ls" mkdir="/usr/bin/mkdir" touch="/usr/bin/touch"  \
+      command="/usr/bin/command" wc="/usr/bin/wc"
 
 # ===============
 
-function warn() {
-    printf "\033[1;33mWARNING\033[0m $1.\n"
+# A simple function for logging. Requires 3 parameters
+#     $1: Log message
+#     $2: Severity of the event being logged
+#     $3: Put a message to remind the user that log messages are kept in
+#         $logfile (only touched if $2 is "3" or "fatal")
+#
+# Valid values for the second parameter are:
+#    0 info       No severity, everything is working as expected.
+#    1 warn       Mild severity, something is wrong but can be easily manually
+#                 fixed later.
+#    2 err        High severity, something is wrong and can hardly be fixed.
+#      error      Same as err.
+#    3 fatal      Extreme severity, the program cannot further work.
+#
+# By design, any other value for the second parameter is treated as "info". This
+# means for severity of 'info', the second parameter may be omitted.
+function log() {
+    case $2 in
+        "1" | "warn") printf "\033[1;33mWARNING\033[0m $1\n" | tee $logfile;;
+        "2" | "err" | "error")
+            printf "\033[1;31mERROR  \033[0m $1\n" | tee $logfile
+            n_err=$(( $n_err + 1 ))
+            ;;
+        "3" | "fatal")
+            printf "\033[1;31mFATAL  \033[0m $1\n" | tee $logfile
+            [[ $3 -ne 0 ]] && printf "$t$t \bLog messages can be found in $logfile\n" \
+                           || rm $logfile
+            exit 1
+            ;;
+        *)
+            printf "INFO    $1\n" >> $logfile
+            [[ $verbose != "0" ]] && printf "INFO    $1\n"
+            ;;
+    esac
 }
 
-function err() {
-    printf "\033[1;31mERROR\033[0m $1.\n"; n_err=$(( $n_err + 1 ))
+
+# Check if REVEAL_PATH is valid as a Reveal.js repository to begin with
+function check_reveal_path() {
+    # Must include:
+    #   - $REVEAL_PATH/css/reveal.css
+    #   - $REVEAL_PATH/js/reveal.js
+    #
+    # Warn if absent:
+    #   - $REVEAL_PATH/css/theme          (no theme)
+    #   - $REVEAL_PATH/lib/js/head.min.js (no plugin)
+    #   - $REVEAL_PATH/plugin             (no plugin)
+
+    log "Checking REVEAL_PATH ($REVEAL_PATH)..."
+
+    ! [ -d "$REVEAL_PATH" ] && log "REVEAL_PATH ($REVEAL_PATH) not found" 3
+
+    ! [ -f "$REVEAL_PATH"/css/reveal.css ] && log "$REVEAL_PATH/css/reveal.css not found" 2
+    ! [ -d "$REVEAL_PATH"/css/theme ] || [[ -z $(ls -A "$REVEAL_PATH"/css/theme) ]] && \
+        log "No theme found" && theme="-" 1
+
+    ! [ -f "$REVEAL_PATH"/js/reveal.js ] && log "$REVEAL_PATH/js/reveal.js not found" 2
+
+    ! [ -f "$REVEAL_PATH"/lib/js/head.min.js ] && \
+        log "$REVEAL_PATH/lib/js/head.min.js not found, plugins won't be loaded" 1 && \
+        plugins="-"
+
+    ! [ -d "$REVEAL_PATH"/plugin ] || [[ -z $(ls -A "$REVEAL_PATH/plugin") ]] && \
+        log "No plugin found" 1 && plugins="-"
 }
 
-function fatal() {
-    printf "\033[1;31mFATAL\033[0m $1.\n"; exit 1
+
+# Given a directory path, check if its last character is "/"
+# and echo the path with the forward slash removed.
+function reformat_path() {
+    [[ ${1:$(echo -n $1 | wc -c)-1:1} == "/" ]]  \
+        && echo -n ${1:0:$(echo -n $1 | wc -c)-1} \
+        || echo -n $1
 }
 
 # ===========================
@@ -59,8 +126,13 @@ USAGE: reveal-init [-h|--help|?|-v|--version] [ [-d DIR] [-t TITLE] [-f THEME]\n
                    [--plugin[s] PLUGINS -] [--header HEADER] [-n NUM]\n\
                    [--short-tab|--long-tab] DIRNAME ]\n\n\
   -h, --help, ?           Print this help and exit.\n\
-  -v, --version           Print version and exit.\n\
+      --version           Print version and exit.\n\
+  -v, --verbose           Inform what the program is doing to stdout.\n\
   -d DIR                  Set DIR as \$REVEAL_PATH (temporary).\n\
+  -c, --check             Check if REVEAL_PATH is valid.\n\
+                          Once this option is encountered, reveal-init will\n\
+                          check REVEAL_PATH and terminate afterwards. All other\n\
+                          options are ignored.\n\
       --git               Initiate project as a Git repository.\n\
   -t, --title TITLE       Set presentation's <title>.\n\
   -f, --theme THEME       Theme (found in \$REVEAL_PATH/css/theme as a CSS file)\n\
@@ -91,29 +163,30 @@ ABOUT REVEAL_PATH:\n\n\
     export REVEAL_PATH=\"\$HOME/Projects/Forks/reveal.js\"\n"
         exit 0
         ;;
-    "-v" | "--version")
+    "--version")
         echo "reveal-init $VERSION"
         exit 0
         ;;
 esac
 
 [ $# -eq 0 ] && \
-    fatal "Directory name not given.\nInvoke '--help' for more information"
+    log "Directory name not given.\n$t$t \bInvoke '--help' for more information" 3
 
 # === PROCESS OPTIONS ===
 
+REVEAL_PATH=$(reformat_path $REVEAL_PATH)
 opt=""
 
 for arg in "$@"
 do
-    if [ $# -eq 1 ]; then
-        [ -d "$1" ] && fatal "Directory '$1' exists" && exit 1
+    if [ $# -eq 1 ] && [[ $1 != "-c" ]] && [[ $1 != "--check" ]]; then
+        [ -d "$1" ] && log "Directory '$1' exists" 3
         dirname=$1 && break
     fi
 
     case $opt in
         "-d")
-            REVEAL_PATH=$1
+            REVEAL_PATH=$(reformat_path $1)
             opt=""
             ;;
         "-t" | "-title" | "--title")
@@ -128,7 +201,7 @@ do
             elif [ -f "$REVEAL_PATH"/css/theme/$1.css ]; then
                 theme="$1"
             else
-                err "Theme '$1' ($REVEAL_PATH/css/theme/$1.css) not found"
+                log "Theme '$1' ($REVEAL_PATH/css/theme/$1.css) not found" 2
             fi
             opt=""
             ;;
@@ -136,7 +209,7 @@ do
             if [[ $1 != "-" ]]; then
                 [ -d "$REVEAL_PATH"/plugin/$1 ] \
                   && [[ $plugins != "-" ]] && plugins="$plugins$1 " \
-                  || err "Plugin '$1' ("$REVEAL_PATH"/plugin/$1) not found"
+                  || log "Plugin '$1' ("$REVEAL_PATH"/plugin/$1) not found" 2
             else
                 opt=""
             fi
@@ -148,23 +221,41 @@ do
         "-n")
             [[ $1 =~ ^[0-9]+$ ]] \
               && n_slide=$1 \
-              || err "-n: Invalid input for number of slides, option ignored"
+              || log "-n: Invalid input for number of slides, option ignored" 2
             opt=""
             ;;
         *)
             case $1 in
                 "-d" | "-t" | "-title" | "--title" | "-f" | "-theme" | "--theme" \
                 | "-plugin" | "--plugin" | "-plugins" | "--plugins" \
-                | "-header" | "--header" | "-n")
-                    opt=$1;;
+                | "-header" | "--header" | "-n") opt=$1;;
+
+                "-c" | "--check")
+                    verbose=1
+                    check_reveal_path
+                    log "\r\033[1;32mINFO   \033[0m Done checking REVEAL_PATH."
+                    if [ $n_err -gt 0 ]; then
+                        log "\r\033[1;31mINFO   \033[0m $n_err error(s) found. Please fix them."
+                        printf "$t$t \bLog messages can be found in $logfile\n"
+                    else
+                        log "\r\033[1;32mINFO   \033[0m REVEAL_PATH is valid."
+                        rm $logfile
+                    fi
+                    exit 0
+                    ;;
+
+                "-v" | "--verbose") verbose=1;;
+
                 "--git")
                     [ -z $(command -v git) ] \
-                        && warn "--git: Git is not installed, option ignored" \
-                        || git="true"
+                        && log "--git: Git is not installed, option ignored" 1 \
+                        || git="1"
                     ;;
+
                 "--short-tab") t="  ";;
                 "--long-tab") t="    ";;
-                *) fatal "Invalid option '$1', aborting..." && exit 1;;
+
+                *) log "Invalid option '$1', aborting..." 3;;
             esac
             ;;
     esac
@@ -179,13 +270,12 @@ done
 # === CHECK $REVEAL_PATH ===
 
 if [ -z "$REVEAL_PATH" ]; then
-    warn "REVEAL_PATH is not set"
+    log "REVEAL_PATH is not set" 1
     echo "reveal-init won't work without REVEAL_PATH, what now?"
     echo "    1: Use the current directory as REVEAL_PATH (temporary)"
     echo "    2: Set a value for REVEAL_PATH (temporary)"
     echo "    3: Abort and set a permanent value for REVEAL_PATH"
     read -p "[1|2|3] " option
-    echo $option
 
     case "$option" in
         "1")
@@ -194,49 +284,20 @@ if [ -z "$REVEAL_PATH" ]; then
             ;;
         "2")
             read -p "REVEAL_PATH: " REVEAL_PATH
-            [ -z "$REVEAL_PATH" ] && fatal "Invalid value for REVEAL_PATH"
+            [ -z "$REVEAL_PATH" ] && log "Invalid value for REVEAL_PATH" 3
             ;;
         "3")
             echo "Then go set a value for it with 'export'"
-            echo "Aborting..."
-            exit 1
+            log "Aborting..." 3
             ;;
         *)
-            echo "$option"
-            fatal "Invalid option, aborting.."
+            log "Invalid option, aborting..." 3
             ;;
     esac
 fi
 
-# Must include:
-#   - $REVEAL_PATH/css/reveal.css
-#   - $REVEAL_PATH/js/reveal.js
-#
-# Warn if absent:
-#   - $REVEAL_PATH/css/theme          (no theme)
-#   - $REVEAL_PATH/lib/js/head.min.js (no plugin)
-#   - $REVEAL_PATH/plugin             (no plugin)
-
-echo "Checking REVEAL_PATH..."
-
-! [ -d "$REVEAL_PATH" ] && fatal "REVEAL_PATH ($REVEAL_PATH) not found"
-
-! [ -f "$REVEAL_PATH"/css/reveal.css ] && err "$REVEAL_PATH/css/reveal.css not found"
-! [ -d "$REVEAL_PATH"/css/theme ] || [[ -z $(ls -A "$REVEAL_PATH"/css/theme) ]] && \
-    warn "No theme found" && theme="-"
-
-! [ -f "$REVEAL_PATH"/js/reveal.js ] && err "$REVEAL_PATH/js/reveal.js not found"
-
-! [ -f "$REVEAL_PATH"/lib/js/head.min.js ] && \
-    warn "$REVEAL_PATH/lib/js/head.min.js not found, plugins won't be loaded" && \
-    plugins="-"
-
-! [ -d "$REVEAL_PATH"/plugin ] || [[ -z $(ls -A "$REVEAL_PATH/plugin") ]] && \
-    warn "No plugin found" && plugins="-"
-
-[ $n_err -gt 0 ] && fatal "Fix the above problem(s) and try again"
-
-echo "Done checking."
+check_reveal_path
+[ $n_err -gt 0 ] && log "Fix the above problem(s) and try again" 3 1
 
 # ==========================
 
@@ -244,41 +305,57 @@ echo "Done checking."
 
 # Make directories
 
-[ $git == "true" ] && git init -- "$dirname"
+[ $git != "0" ] && log "Initializing Git repository..." && git init -- "$dirname"
+log "Creating $dirname/"
+log "Creating $dirname/js/"
+log "Creating $dirname/css/"
 mkdir -p -- "$dirname"/js
 mkdir -- "$dirname"/css
 
 # Copy themes
 
-[[ $theme != "-" ]] && mkdir "$dirname"/css/theme && case $theme in
+[[ $theme != "-" ]] && log "Creating $dirname/css/theme/" &&         \
+                       mkdir "$dirname"/css/theme &&                  \
+case $theme in
     "*")
+        log "Copying all CSS and SCSS files in $REVEAL_PATH/css/theme/ into $dirname/css/theme"
         cp -- "$REVEAL_PATH"/css/theme/*.css \
             "$REVEAL_PATH"/css/theme/source/*.scss "$dirname"/css/theme/
         ;;
     *)
+        log "Copying $REVEAL_PATH/css/theme/$theme.css to $dirname/css/theme/$theme.css"
         cp -- "$REVEAL_PATH"/css/theme/$theme.css "$dirname"/css/theme/$theme.css
         [ -f "$REVEAL_PATH"/css/theme/source/$theme.scss ] && \
+            log "Copying $REVEAL_PATH/css/theme/$theme.scss to $dirname/css/theme/$theme.scss"
             cp -- "$REVEAL_PATH"/css/theme/source/$theme.scss "$dirname"/css/theme/$theme.scss
         ;;
 esac
 
 # Copy plugins
 
-[[ $plugins != "-" ]] && mkdir -- "$dirname"/plugin && for plugin in $plugins; do
+
+[[ $plugins != "-" ]] && log "Creating $dirname/plugin/" \
+                         mkdir -- "$dirname"/plugin &&    \
+for plugin in $plugins; do
+    log "Copying $REVEAL_PATH/plugin/$plugin to $dirname/plugin/$plugin"
     cp -r -- "$REVEAL_PATH"/plugin/$plugin "$dirname"/plugin/$plugin
 done
 
 # Copy js/ (supposedly contains reveal.js) and reveal.css
 
+log "Copying all files in $REVEAL_PATH/js/ into $dirname/js/"
 cp -r -- "$REVEAL_PATH"/js/* "$dirname"/js/
+log "Copying $REVEAL_PATH/css/reveal.css to $dirname/css/reveal.css"
 cp -- "$REVEAL_PATH"/css/reveal.css "$dirname"/css/reveal.css
 
 # Copy lib/
 
+log "Copying $REVEAL_PATH/lib/ to $dirname/lib/"
 [ -d "$REVEAL_PATH"/lib ] && cp -r -- "$REVEAL_PATH"/lib "$dirname"/lib
 
 # Create index.html
 
+log "Creating index.md"
 touch -- "$dirname"/index.html
 indexf="$dirname"/index.html
 
@@ -347,7 +424,7 @@ else
         done
 
         if [ -z $js_indexf ]; then
-            warn "Failed to get plugin '$plugin''s JavaScript file to load from, please do this manually"
+            log "Failed to get plugin '$plugin''s JavaScript file to load from, please do this manually" 1
             continue
         fi
 
@@ -358,6 +435,8 @@ fi
 
 printf "$t</body>\n</html>\n" >> $indexf
 
-echo "Generated a new slide deck at $dirname."
-unalias printf echo ls mkdir cp touch command
+verbose=1  # It is necessary to print the following log message to stdout
+log "\r\033[1;32mINFO   \033[0m Generated a new slide deck at $dirname."
+rm $logfile
+unalias printf echo ls mkdir cp touch command wc
 exit 0
