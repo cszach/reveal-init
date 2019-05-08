@@ -104,7 +104,7 @@ function check_reveal_path() {
         plugins="-"
 
     ! [ -d "$REVEAL_PATH"/plugin ] || [[ -z $(ls -A "$REVEAL_PATH/plugin") ]] && \
-        log "No plugin found" && plugins="-" 1
+        log "No plugin found" 1 && plugins="-"
 }
 
 
