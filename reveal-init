@@ -95,7 +95,7 @@ function check_reveal_path() {
 
     ! [ -f "$REVEAL_PATH"/css/reveal.css ] && log "$REVEAL_PATH/css/reveal.css not found" 2
     ! [ -d "$REVEAL_PATH"/css/theme ] || [[ -z $(ls -A "$REVEAL_PATH"/css/theme) ]] && \
-        log "No theme found" && theme="-" 1
+        log "No theme found" 1 && theme="-"
 
     ! [ -f "$REVEAL_PATH"/js/reveal.js ] && log "$REVEAL_PATH/js/reveal.js not found" 2
 
