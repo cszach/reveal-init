@@ -122,9 +122,9 @@ case $1 in
     "-h" | "--help" | "?")
         printf "\
 reveal-init: Create a new Reveal.js presentation project from files in \$REVEAL_PATH\n\
-USAGE: reveal-init [-h|--help|?|-v|--version] [ [-d DIR] [-t TITLE] [-f THEME]\n\
-                   [--plugin[s] PLUGINS -] [--header HEADER] [-n NUM]\n\
-                   [--short-tab|--long-tab] DIRNAME ]\n\n\
+USAGE: reveal-init [-h|--help|?|-v|--version] [ [-d DIR] [-c|--check]\n\
+                   [-t TITLE] [-f THEME] [--plugin[s] plugin1 plugin2 ... -]\n\
+                   [--header HEADER] [-n NUM] [--short-tab|--long-tab] DIRNAME ]\n\n\
   -h, --help, ?           Print this help and exit.\n\
       --version           Print version and exit.\n\
   -v, --verbose           Inform what the program is doing to stdout.\n\
