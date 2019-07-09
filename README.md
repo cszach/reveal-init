@@ -1,7 +1,7 @@
 reveal-init
 ===========
 
-[wiki]: https://github.com/NOVAglow/reveal-init/wiki
+[wiki]: https://github.com/you-create/reveal-init/wiki
 
 `reveal-init` is a Shell script :shell: that is used to create a new
 [Reveal.js](https://revealjs.com) presentation project. More specifically, it
@@ -251,7 +251,7 @@ reveal-init -t "Boring slides | Boring Inc." --header "There's nothing here.<br>
 :computer: How to use `reveal-init`
 -----------------------------------
 
-1. [Get it](https://github.com/NOVAglow/reveal-init/releases).
+1. [Get it](https://github.com/you-create/reveal-init/releases).
 2. Get a clone of [Reveal.js's repository](https://github.com/hakimel/reveal.js)
 (e.g. with `git clone https://github.com/hakimel/reveal.js`). You can also get
 a clone of a fork of it.
