@@ -14,6 +14,8 @@ theme=""     # Theme for the slide deck
 plugins=""   # List of plugins (separated by white spaces)
 n_slide=0    # Number of empty non-vertical slides to create
 git=0        # Initiate a Git repository? (0 = false, true otherwise)
+copylib=1    # Copy everything in REVEAL_PATH/lib? (0 for no, yes otherwise)
+libfiles=""  # Paths of files in REVEAL_PATH/lib (relative) to copy and import
 
 verbose=0    # Be verbose? (0 = no, otherwise yes)
 logfile="$(mktemp /tmp/reveal-init-XXXXXXXX)"  # Path to log file
@@ -123,26 +125,32 @@ function reformat_path() {
 case $1 in
     "-h" | "--help" | "?")
         printf "\
-reveal-init: Create a new Reveal.js presentation project from files in \$REVEAL_PATH\n\
-USAGE: reveal-init [-h|--help|?|-v|--version] [ [-d DIR] [-c|--check]\n\
-                   [-t TITLE] [-f THEME] [--plugin[s] plugin1 plugin2 ... -]\n\
-                   [--header HEADER] [-n NUM] [--short-tab|--long-tab] DIRNAME ]\n\n\
+reveal-init: Create a new Reveal.js presentation project from files in REVEAL_PATH\n\
+USAGE: reveal-init [-h|--help|?|-v|--version]
+       reveal-init [-d DIR] -c
+       reveal-init [-d DIR] [--git] [-t TITLE] [-f THEME]\n\
+                   [--plugin[s] PLUGIN_1 PLUGIN_2 ... -]\n\
+                   [--lib FILE_1 FILE_2 ... -]\n\
+                   [--header HEADER] [-n NUM] [--short-tab|--long-tab] DIRNAME\n\
+                   \n\
+                   ...where DIRNAME is the directory where the new Reveal.js\n\
+                   presentation project will reside in.\n\n\
   -h, --help, ?           Print this help and exit.\n\
       --version           Print version and exit.\n\
   -v, --verbose           Inform what the program is doing to stdout.\n\
-  -d DIR                  Set DIR as \$REVEAL_PATH (temporary).\n\
+  -d DIR                  Set DIR as REVEAL_PATH (temporary).\n\
   -c, --check             Check if REVEAL_PATH is valid.\n\
                           Once this option is encountered, reveal-init will\n\
                           check REVEAL_PATH and terminate afterwards. All other\n\
                           options are ignored.\n\
       --git               Initiate project as a Git repository.\n\
   -t, --title TITLE       Set presentation's <title>.\n\
-  -f, --theme THEME       Theme (found in \$REVEAL_PATH/css/theme as a CSS file)\n\
+  -f, --theme THEME       Theme (found in REVEAL_PATH/css/theme as a CSS file)\n\
                           to import. If THEME is \"all\", the script will import\n\
                           all themes. If THEME is \"-\", the script will not\n\
                           import any theme.\n\
-                          Otherwise, import \$REVEAL_PATH/css/theme/THEME.css.\n\
-      --plugin PLUGINS    Plugins (found in \$REVEAL_PATH/plugin, usually as a\n\
+                          Otherwise, import REVEAL_PATH/css/theme/THEME.css.\n\
+      --plugin PLUGINS    Plugins (found in REVEAL_PATH/plugin, usually as a\n\
                           directory) to import. PLUGINS is where the plugins are\n\
                           listed, separated with a space character. The list\n\
                           must be ended with a dash (\"-\").\n\
@@ -154,7 +162,12 @@ USAGE: reveal-init [-h|--help|?|-v|--version] [ [-d DIR] [-c|--check]\n\
                           With --header: Create NUM empty non-vertical slide(s)\n\
                           after the first slide.\n\
       --short-tab         Use 2-space tabs in index.html.\n\
-      --long-tab          Use 4-space tabs in index.html (default).\n\n\
+      --long-tab          Use 4-space tabs in index.html (default).\n\
+      --lib FILES         Specify what files and/or folders in REVEAL_PATH/lib\n\
+                          to import. FILES is where the files and folders' paths\n\
+                          are listed, separated with a space character. The list\n\
+                          must be ended with a dash (\"-\"). Paths must be\n\
+                          relative to the REVEAL_PATH/lib directory.\n\n\
 ABOUT REVEAL_PATH:\n\n\
     REVEAL_PATH is a Unix environment variable that this script uses to import\n\
   files from. It should be Reveal.js project directory (e.g. cloned from\n\
@@ -227,10 +240,23 @@ do
               || log "-n: Invalid input for number of slides, option ignored" 2
             opt=""
             ;;
+        "--lib")
+            copylib=0
+
+            if [[ $1 == "-" ]]
+            then
+                opt=""
+            elif [[ -d "$REVEAL_PATH/lib/$1" ]] || [[ -f "$REVEAL_PATH/lib/$1" ]]
+            then
+                libfiles="$libfiles""$1 "
+            else
+                log "File $REVEAL_PATH/lib/$1 doesn't exist, ignoring...." 1
+            fi
+            ;;
         *)
             case $1 in
                 "-d" | "-t" | "-title" | "--title" | "-f" | "-theme" | "--theme" \
-                | "-plugin" | "--plugin" | "-plugins" | "--plugins" \
+                | "-plugin" | "--plugin" | "-plugins" | "--plugins" | "--lib" \
                 | "-header" | "--header" | "-n") opt=$1;;
 
                 "-c" | "--check")
@@ -336,7 +362,6 @@ esac
 
 # Copy plugins
 
-
 [[ $plugins != "-" ]] && log "Creating $dirname/plugin/" \
                          mkdir -- "$dirname"/plugin &&    \
 for plugin in $plugins; do
@@ -353,8 +378,17 @@ cp -- "$REVEAL_PATH"/css/reveal.css "$dirname"/css/reveal.css
 
 # Copy lib/
 
-log "Copying $REVEAL_PATH/lib/ to $dirname/lib/"
-[ -d "$REVEAL_PATH"/lib ] && cp -r -- "$REVEAL_PATH"/lib "$dirname"/lib
+if [[ $copylib == "0" ]]; then
+    mkdir "$dirname/lib"
+    for libfile in $libfiles
+    do
+        log "Copying $REVEAL_PATH/lib/$libfile into $dirname/lib/"
+        cp -r -- "$REVEAL_PATH/lib/$libfile" "$dirname"/lib
+    done
+else
+    log "Copying $REVEAL_PATH/lib/ into $dirname/"
+    [ -d "$REVEAL_PATH"/lib ] && cp -r -- "$REVEAL_PATH"/lib "$dirname"
+fi
 
 # Create index.html
 
