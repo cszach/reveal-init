@@ -17,6 +17,7 @@ git=0        # Initiate a Git repository? (0 = false, true otherwise)
 copylib=1    # Copy everything in REVEAL_PATH/lib? (0 for no, yes otherwise)
 libfiles=""  # Paths of files in REVEAL_PATH/lib (relative) to copy and import
 
+n_err=0      # Number of errors
 verbose=0    # Be verbose? (0 = no, otherwise yes)
 logfile="$(mktemp /tmp/reveal-init-XXXXXXXX)"  # Path to log file
 
@@ -27,7 +28,6 @@ logfile="$(mktemp /tmp/reveal-init-XXXXXXXX)"  # Path to log file
 
 VERSION="master"  # reveal-init's version
 t="    "          # Tab
-n_err=0           # Number of errors
 
 # ===========================
 
