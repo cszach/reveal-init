@@ -79,6 +79,8 @@ function log() {
             [[ $verbose != "0" ]] && printf "INFO    $1\n"
             ;;
     esac
+
+    return 0
 }
 
 
@@ -167,7 +169,8 @@ USAGE: reveal-init [-h|--help|?|-v|--version]
                           to import. FILES is where the files and folders' paths\n\
                           are listed, separated with a space character. The list\n\
                           must be ended with a dash (\"-\"). Paths must be\n\
-                          relative to the REVEAL_PATH/lib directory.\n\n\
+                          relative to the REVEAL_PATH/lib directory. Without\n\
+                          this option, copy the whole REVEAL_PATH/lib directory.\n\n\
 ABOUT REVEAL_PATH:\n\n\
     REVEAL_PATH is a Unix environment variable that this script uses to import\n\
   files from. It should be Reveal.js project directory (e.g. cloned from\n\
@@ -475,5 +478,5 @@ printf "$t</body>\n</html>\n" >> $indexf
 verbose=1  # It is necessary to print the following log message to stdout
 log "\r\033[1;32mINFO   \033[0m Generated a new slide deck at $dirname."
 rm $logfile
-unalias printf echo ls mkdir cp touch command wc
+unalias printf echo cp ls mkdir touch command tee wc
 exit 0
