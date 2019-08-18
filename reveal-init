@@ -137,7 +137,8 @@ USAGE: reveal-init [-h|--help|?|--version]\n\
                    [--header HEADER] [-n NUM] [--short-tab|--long-tab] DIRNAME\n\
                    \n\
                    ...where DIRNAME is the directory where the new Reveal.js\n\
-                   presentation project will reside in.\n\n\
+                   presentation project will reside in.\n\
+                   \n\
   -h, --help, ?           Print this help and exit.\n\
       --version           Print version and exit.\n\
   -v, --verbose           Inform what the program is doing to stdout.\n\
@@ -173,14 +174,17 @@ USAGE: reveal-init [-h|--help|?|--version]\n\
                           are listed, separated with a space character. The list\n\
                           must be ended with a dash (\"-\"). Paths must be\n\
                           relative to the REVEAL_PATH/lib directory. Without\n\
-                          this option, copy the whole REVEAL_PATH/lib directory.\n\n\
-ABOUT REVEAL_PATH:\n\n\
+                          this option, copy the whole REVEAL_PATH/lib directory.\n\
+\n\
+ABOUT REVEAL_PATH:\n\
+\n\
     REVEAL_PATH is a Unix environment variable that this script uses to import\n\
   files from. It should be Reveal.js project directory (e.g. cloned from\n\
   https://github.com/hakimel/reveal.js) and it should follow the orignal\n\
   directory structure (see \"Folder Structure\" section in Reveal.js project's\n\
   README for a basic reference). You should set REVEAL_PATH in .bashrc or any\n\
-  script with similar functionality that you are using with, for example:\n\n\
+  script with similar functionality that you are using with, for example:\n\
+  \n\
     export REVEAL_PATH=\"\$HOME/Projects/Forks/reveal.js\"\n"
         rm $logfile
         exit 0
