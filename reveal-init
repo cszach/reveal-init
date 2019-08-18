@@ -130,7 +130,7 @@ case $1 in
 reveal-init: Create a new Reveal.js presentation project from files in REVEAL_PATH\n\
 USAGE: reveal-init [-h|--help|?|--version]\n\
        reveal-init [-d DIR] -c\n\
-       reveal-init [--ls-themes|--ls-plugins]\n\
+       reveal-init [--delete-log|--ls-themes|--ls-plugins]\n\
        reveal-init [-v|--verbose] [-d DIR] [--git] [-t TITLE] [-f THEME]\n\
                    [--plugin[s] PLUGIN_1 PLUGIN_2 ... -]\n\
                    [--lib FILE_1 FILE_2 ... -]\n\
@@ -142,6 +142,7 @@ USAGE: reveal-init [-h|--help|?|--version]\n\
   -h, --help, ?           Print this help and exit.\n\
       --version           Print version and exit.\n\
   -v, --verbose           Inform what the program is doing to stdout.\n\
+      --delete-log        Delete all reveal-init log files found in /tmp\n\
   -d DIR                  Set DIR as REVEAL_PATH (temporary).\n\
   -c, --check             Check if REVEAL_PATH is valid.\n\
                           Once this option is encountered, reveal-init will\n\
@@ -192,6 +193,10 @@ ABOUT REVEAL_PATH:\n\
     "--version")
         echo "reveal-init $VERSION"
         rm $logfile
+        exit 0
+        ;;
+    "--delete-log")
+        rm /tmp/reveal-init-*
         exit 0
         ;;
     "--ls-themes")
