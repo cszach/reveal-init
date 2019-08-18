@@ -26,8 +26,8 @@ logfile="$(mktemp /tmp/reveal-init-XXXXXXXX)"  # Path to log file
 # === PROGRAM'S VARIABLES ===
 # These values remain constant throughout the program
 
-VERSION="2.2 Alpha"  # reveal-init's version
-t="    "          # Tab
+VERSION="master (<- 2.2 Alpha)"  # reveal-init's version
+t="    "  # Tab
 
 # ===========================
 
@@ -128,9 +128,9 @@ case $1 in
     "-h" | "--help" | "?")
         printf "\
 reveal-init: Create a new Reveal.js presentation project from files in REVEAL_PATH\n\
-USAGE: reveal-init [-h|--help|?|-v|--version]
-       reveal-init [-d DIR] -c
-       reveal-init [-d DIR] [--git] [-t TITLE] [-f THEME]\n\
+USAGE: reveal-init [-h|--help|?|--version]\n\
+       reveal-init [-d DIR] -c\n\
+       reveal-init [-v|--verbose] [-d DIR] [--git] [-t TITLE] [-f THEME]\n\
                    [--plugin[s] PLUGIN_1 PLUGIN_2 ... -]\n\
                    [--lib FILE_1 FILE_2 ... -]\n\
                    [--header HEADER] [-n NUM] [--short-tab|--long-tab] DIRNAME\n\
