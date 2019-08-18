@@ -95,7 +95,7 @@ function check_reveal_path() {
     #   - $REVEAL_PATH/lib/js/head.min.js (no plugin)
     #   - $REVEAL_PATH/plugin             (no plugin)
 
-    log "Checking REVEAL_PATH ($REVEAL_PATH)..."
+    log "Checking REVEAL_PATH ($(readlink -f $REVEAL_PATH))..."
 
     ! [ -d "$REVEAL_PATH" ] && log "REVEAL_PATH ($REVEAL_PATH) not found" 3
 
@@ -346,7 +346,7 @@ if [ -z "$REVEAL_PATH" ]; then
     esac
 fi
 
-echo "REVEAL_PATH: $REVEAL_PATH"
+echo "REVEAL_PATH: $(readlink -f $REVEAL_PATH)"
 
 check_reveal_path
 [ $n_err -gt 0 ] && log "Fix the above problem(s) and try again" 3 1
