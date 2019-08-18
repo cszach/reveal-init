@@ -350,8 +350,8 @@ mkdir -- "$dirname"/css
 
 # Copy themes
 
-[[ $theme != "-" ]] && log "Creating $dirname/css/theme/" &&         \
-                       mkdir "$dirname"/css/theme &&                  \
+[[ $theme != "-" ]] && log "Creating $dirname/css/theme/"  \
+                    && mkdir "$dirname"/css/theme &&        \
 case $theme in
     "*")
         log "Copying all CSS and SCSS files in \$REVEAL_PATH/css/theme/ into $dirname/css/theme"
@@ -369,8 +369,8 @@ esac
 
 # Copy plugins
 
-[[ $plugins != "-" ]] && log "Creating $dirname/plugin/" \
-                      && mkdir -- "$dirname"/plugin &&    \
+[[ $plugins != "-" ]] && log "Creating $dirname/plugin/"  \
+                      && mkdir -- "$dirname"/plugin &&     \
 for plugin in $plugins; do
     log "Copying \$REVEAL_PATH/plugin/$plugin to $dirname/plugin/$plugin"
     cp -r -- "$REVEAL_PATH"/plugin/$plugin "$dirname"/plugin/$plugin
