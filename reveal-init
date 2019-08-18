@@ -99,14 +99,14 @@ function check_reveal_path() {
 
     ! [ -d "$REVEAL_PATH" ] && log "REVEAL_PATH ($REVEAL_PATH) not found" 3
 
-    ! [ -f "$REVEAL_PATH"/css/reveal.css ] && log "$REVEAL_PATH/css/reveal.css not found" 2
+    ! [ -f "$REVEAL_PATH"/css/reveal.css ] && log "\$REVEAL_PATH/css/reveal.css not found" 2
     ! [ -d "$REVEAL_PATH"/css/theme ] || [[ -z $(ls -A "$REVEAL_PATH"/css/theme) ]] && \
         log "No theme found" 1 && theme="-"
 
-    ! [ -f "$REVEAL_PATH"/js/reveal.js ] && log "$REVEAL_PATH/js/reveal.js not found" 2
+    ! [ -f "$REVEAL_PATH"/js/reveal.js ] && log "\$REVEAL_PATH/js/reveal.js not found" 2
 
     ! [ -f "$REVEAL_PATH"/lib/js/head.min.js ] && \
-        log "$REVEAL_PATH/lib/js/head.min.js not found, plugins won't be loaded" 1 && \
+        log "\$REVEAL_PATH/lib/js/head.min.js not found, plugins won't be loaded" 1 && \
         plugins="-"
 
     ! [ -d "$REVEAL_PATH"/plugin ] || [[ -z $(ls -A "$REVEAL_PATH/plugin") ]] && \
@@ -330,6 +330,8 @@ if [ -z "$REVEAL_PATH" ]; then
     esac
 fi
 
+echo "REVEAL_PATH: $REVEAL_PATH"
+
 check_reveal_path
 [ $n_err -gt 0 ] && log "Fix the above problem(s) and try again" 3 1
 
@@ -352,15 +354,15 @@ mkdir -- "$dirname"/css
                        mkdir "$dirname"/css/theme &&                  \
 case $theme in
     "*")
-        log "Copying all CSS and SCSS files in $REVEAL_PATH/css/theme/ into $dirname/css/theme"
+        log "Copying all CSS and SCSS files in \$REVEAL_PATH/css/theme/ into $dirname/css/theme"
         cp -- "$REVEAL_PATH"/css/theme/*.css \
             "$REVEAL_PATH"/css/theme/source/*.scss "$dirname"/css/theme/
         ;;
     *)
-        log "Copying $REVEAL_PATH/css/theme/$theme.css to $dirname/css/theme/$theme.css"
+        log "Copying \$REVEAL_PATH/css/theme/$theme.css to $dirname/css/theme/$theme.css"
         cp -- "$REVEAL_PATH"/css/theme/$theme.css "$dirname"/css/theme/$theme.css
         [ -f "$REVEAL_PATH"/css/theme/source/$theme.scss ] && \
-            log "Copying $REVEAL_PATH/css/theme/$theme.scss to $dirname/css/theme/$theme.scss"
+            log "Copying \$REVEAL_PATH/css/theme/$theme.scss to $dirname/css/theme/$theme.scss"
             cp -- "$REVEAL_PATH"/css/theme/source/$theme.scss "$dirname"/css/theme/$theme.scss
         ;;
 esac
@@ -368,17 +370,17 @@ esac
 # Copy plugins
 
 [[ $plugins != "-" ]] && log "Creating $dirname/plugin/" \
-                         mkdir -- "$dirname"/plugin &&    \
+                      && mkdir -- "$dirname"/plugin &&    \
 for plugin in $plugins; do
-    log "Copying $REVEAL_PATH/plugin/$plugin to $dirname/plugin/$plugin"
+    log "Copying \$REVEAL_PATH/plugin/$plugin to $dirname/plugin/$plugin"
     cp -r -- "$REVEAL_PATH"/plugin/$plugin "$dirname"/plugin/$plugin
 done
 
 # Copy js/ (supposedly contains reveal.js) and reveal.css
 
-log "Copying all files in $REVEAL_PATH/js/ into $dirname/js/"
+log "Copying all files in \$REVEAL_PATH/js/ into $dirname/js/"
 cp -r -- "$REVEAL_PATH"/js/* "$dirname"/js/
-log "Copying $REVEAL_PATH/css/reveal.css to $dirname/css/reveal.css"
+log "Copying \$REVEAL_PATH/css/reveal.css to $dirname/css/reveal.css"
 cp -- "$REVEAL_PATH"/css/reveal.css "$dirname"/css/reveal.css
 
 # Copy lib/
@@ -387,11 +389,11 @@ if [[ $copylib == "0" ]]; then
     mkdir "$dirname/lib"
     for libfile in $libfiles
     do
-        log "Copying $REVEAL_PATH/lib/$libfile into $dirname/lib/"
+        log "Copying \$REVEAL_PATH/lib/$libfile into $dirname/lib/"
         cp -r -- "$REVEAL_PATH/lib/$libfile" "$dirname"/lib
     done
 else
-    log "Copying $REVEAL_PATH/lib/ into $dirname/"
+    log "Copying \$REVEAL_PATH/lib/ into $dirname/"
     [ -d "$REVEAL_PATH"/lib ] && cp -r -- "$REVEAL_PATH"/lib "$dirname"
 fi
 
