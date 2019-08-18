@@ -26,7 +26,7 @@ logfile="$(mktemp /tmp/reveal-init-XXXXXXXX)"  # Path to log file
 # === PROGRAM'S VARIABLES ===
 # These values remain constant throughout the program
 
-VERSION="3.0 Beta"  # reveal-init's version
+VERSION="master (<- 3.0 Beta)"  # reveal-init's version
 t="    "  # Tab
 
 # ===========================
