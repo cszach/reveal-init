@@ -130,6 +130,7 @@ case $1 in
 reveal-init: Create a new Reveal.js presentation project from files in REVEAL_PATH\n\
 USAGE: reveal-init [-h|--help|?|--version]\n\
        reveal-init [-d DIR] -c\n\
+       reveal-init [--ls-themes|--ls-plugins]\n\
        reveal-init [-v|--verbose] [-d DIR] [--git] [-t TITLE] [-f THEME]\n\
                    [--plugin[s] PLUGIN_1 PLUGIN_2 ... -]\n\
                    [--lib FILE_1 FILE_2 ... -]\n\
@@ -145,6 +146,8 @@ USAGE: reveal-init [-h|--help|?|--version]\n\
                           Once this option is encountered, reveal-init will\n\
                           check REVEAL_PATH and terminate afterwards. All other\n\
                           options are ignored.\n\
+      --ls-themes         List all themes that are available for import.\n\
+      --ls-plugins        List all plugins that are available for import.\n\
       --git               Initiate project as a Git repository.\n\
   -t, --title TITLE       Set presentation's <title>.\n\
   -f, --theme THEME       Theme (found in REVEAL_PATH/css/theme as a CSS file)\n\
@@ -184,6 +187,19 @@ ABOUT REVEAL_PATH:\n\n\
         ;;
     "--version")
         echo "reveal-init $VERSION"
+        rm $logfile
+        exit 0
+        ;;
+    "--ls-themes")
+        /usr/bin/find $REVEAL_PATH/css/theme -type f -name "*.css" \
+                                             -exec basename -s .css {} ';'
+        rm $logfile
+        exit 0
+        ;;
+    "--ls-plugins")
+        /usr/bin/find $REVEAL_PATH/plugin -maxdepth 1 -type d \
+                                          -not -name "plugin" \
+                                          -exec basename {} ';'
         rm $logfile
         exit 0
         ;;
