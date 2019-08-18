@@ -179,10 +179,12 @@ ABOUT REVEAL_PATH:\n\n\
   README for a basic reference). You should set REVEAL_PATH in .bashrc or any\n\
   script with similar functionality that you are using with, for example:\n\n\
     export REVEAL_PATH=\"\$HOME/Projects/Forks/reveal.js\"\n"
+        rm $logfile
         exit 0
         ;;
     "--version")
         echo "reveal-init $VERSION"
+        rm $logfile
         exit 0
         ;;
 esac
