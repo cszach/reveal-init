@@ -128,9 +128,10 @@ case $1 in
     "-h" | "--help" | "?")
         printf "\
 reveal-init: Create a new Reveal.js presentation project from files in REVEAL_PATH\n\
-USAGE: reveal-init [-h|--help|?|--version]\n\
+USAGE: reveal-init -h|--help|?|--version\n\
+       reveal-init --delete-log\n\
        reveal-init [-d DIR] -c\n\
-       reveal-init [--delete-log|--ls-themes|--ls-plugins]\n\
+       reveal-init [-d DIR] --ls-themes|--ls-plugins\n\
        reveal-init [-v|--verbose] [-d DIR] [--git] [-t TITLE] [-f THEME]\n\
                    [--plugin[s] PLUGIN_1 PLUGIN_2 ... -]\n\
                    [--lib FILE_1 FILE_2 ... -]\n\
@@ -142,12 +143,12 @@ USAGE: reveal-init [-h|--help|?|--version]\n\
   -h, --help, ?           Print this help and exit.\n\
       --version           Print version and exit.\n\
   -v, --verbose           Inform what the program is doing to stdout.\n\
-      --delete-log        Delete all reveal-init log files found in /tmp\n\
+      --delete-log        Delete all reveal-init log files found in /tmp.\n\
   -d DIR                  Set DIR as REVEAL_PATH (temporary).\n\
   -c, --check             Check if REVEAL_PATH is valid.\n\
                           Once this option is encountered, reveal-init will\n\
                           check REVEAL_PATH and terminate afterwards. All other\n\
-                          options are ignored.\n\
+                          options will be ignored.\n\
       --ls-themes         List all themes that are available for import.\n\
       --ls-plugins        List all plugins that are available for import.\n\
       --git               Initiate project as a Git repository.\n\
@@ -199,19 +200,6 @@ ABOUT REVEAL_PATH:\n\
         rm /tmp/reveal-init-*
         exit 0
         ;;
-    "--ls-themes")
-        /usr/bin/find $REVEAL_PATH/css/theme -type f -name "*.css" \
-                                             -exec basename -s .css {} ';'
-        rm $logfile
-        exit 0
-        ;;
-    "--ls-plugins")
-        /usr/bin/find $REVEAL_PATH/plugin -maxdepth 1 -type d \
-                                          -not -name "plugin" \
-                                          -exec basename {} ';'
-        rm $logfile
-        exit 0
-        ;;
 esac
 
 [ $# -eq 0 ] && \
@@ -225,7 +213,8 @@ opt=""
 for arg in "$@"
 do
     # If there's only one argument...
-    if [ $# -eq 1 ] && [[ $1 != "-c" ]] && [[ $1 != "--check" ]]; then
+    if [ $# -eq 1 ] && [[ $1 != "-c" ]] && [[ $1 != "--check" ]] && \
+       [[ $1 != "--ls-themes" ]] && [[ $1 != "--ls-plugins" ]]; then
         [ -d "$1" ] && log "Directory '$1' exists" 3
         dirname=$1 && break
     fi
@@ -300,6 +289,24 @@ do
                         log "\r\033[1;32mINFO   \033[0m REVEAL_PATH is valid."
                         rm $logfile
                     fi
+                    exit 0
+                    ;;
+
+                "--ls-themes")
+                    /usr/bin/find $REVEAL_PATH/css/theme           \
+                        -type f -name "*.css"                       \
+                        -exec basename -s .css {} ';'
+                    [ $? -ne 0 ] && log "It seems that REVEAL_PATH is invalid" 3
+                    rm $logfile
+                    exit 0
+                    ;;
+
+                "--ls-plugins")
+                    /usr/bin/find $REVEAL_PATH/plugin              \
+                        -maxdepth 1 -type d -not -name "plugin"     \
+                        -exec basename {} ';'
+                    [ $? -ne 0 ] && log "It seems that REVEAL_PATH is invalid" 3
+                    rm $logfile
                     exit 0
                     ;;
 
