@@ -70,7 +70,7 @@ function log() {
             ;;
         "3" | "fatal")
             printf "\033[1;31mFATAL  \033[0m $1\n" | tee -a $logfile
-            [[ $3 -ne 0 ]] && printf "$t$t \bLog messages can be found in $logfile\n" \
+            [[ $3 -ne 0 ]] && printf "Log messages can be found in $logfile\n" \
                            || rm $logfile
             exit 1
             ;;
@@ -381,8 +381,9 @@ check_reveal_path
 [ $git != "0" ] && log "Initializing Git repository..." && git init -- "$dirname"
 log "Creating $dirname/"
 log "Creating $dirname/js/"
-log "Creating $dirname/css/"
 mkdir -p -- "$dirname"/js
+[ $? -ne 0 ] && log "mkdir failed to create $dirname/" 3 1
+log "Creating $dirname/css/"
 mkdir -- "$dirname"/css
 
 # Copy themes
