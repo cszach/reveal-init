@@ -315,7 +315,7 @@ do
                     exit 0
                     ;;
 
-                "-v" | "--verbose") verbose=1;;
+                "-v" | "-verbose" | "--verbose") verbose=1;;
 
                 "--git")
                     [ -z $(command -v git) ] \
