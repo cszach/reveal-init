@@ -145,6 +145,7 @@ USAGE: reveal-init -h|--help|?|--version\n\
   -v, --verbose           Inform what the program is doing to stdout.\n\
       --delete-log        Delete all reveal-init log files found in /tmp.\n\
   -d DIR                  Set DIR as REVEAL_PATH (temporary).\n\
+  -D DIR                  Same as -d.\n\
   -c, --check             Check if REVEAL_PATH is valid.\n\
                           Once this option is encountered, reveal-init will\n\
                           check REVEAL_PATH and terminate afterwards. All other\n\
@@ -213,14 +214,17 @@ opt=""
 for arg in "$@"
 do
     # If there's only one argument...
-    if [ $# -eq 1 ] && [[ $1 != "-c" ]] && [[ $1 != "--check" ]] && \
-       [[ $1 != "--ls-themes" ]] && [[ $1 != "--ls-plugins" ]]; then
+    if [ $# -eq 1 ] && \
+       [[ $1 != "-c" ]] && [[ $1 != "-check" ]] && [[ $1 != "--check" ]] && \
+       [[ $1 != "-ls-themes" ]] && [[ $1 != "--ls-themes" ]] && \
+       [[ $1 != "-ls-plugins" ]] && [[ $1 != "--ls-plugins" ]]
+    then
         [ -d "$1" ] && log "Directory '$1' exists" 3
         dirname=$1 && break
     fi
 
     case $opt in
-        "-d")
+        "-d" | "-D")
             REVEAL_PATH=$(reformat_path $1)
             opt=""
             ;;
@@ -259,7 +263,7 @@ do
               || log "-n: Invalid input for number of slides, option ignored" 2
             opt=""
             ;;
-        "--lib")
+        "-lib" | "--lib")
             copylib=0
 
             if [[ $1 == "-" ]]
@@ -274,11 +278,12 @@ do
             ;;
         *)
             case $1 in
-                "-d" | "-t" | "-title" | "--title" | "-f" | "-theme" | "--theme" \
-                | "-plugin" | "--plugin" | "-plugins" | "--plugins" | "--lib" \
-                | "-header" | "--header" | "-n") opt=$1;;
+                "-d" | "-D" | "-t" | "-title" | "--title" | "-f" | "-theme" \
+                | "--theme" | "-plugin" | "--plugin" | "-plugins" | "--plugins"\
+                | "-lib" | "--lib" | "-header" | "--header" | "-n")
+                    opt=$1;;
 
-                "-c" | "--check")
+                "-c" | "-check" | "--check")
                     verbose=1
                     check_reveal_path
                     log "\r\033[1;32mINFO   \033[0m Done checking REVEAL_PATH."
@@ -292,7 +297,7 @@ do
                     exit 0
                     ;;
 
-                "--ls-themes")
+                "-ls-themes" | "--ls-themes")
                     /usr/bin/find $REVEAL_PATH/css/theme           \
                         -type f -name "*.css"                       \
                         -exec basename -s .css {} ';'
@@ -301,7 +306,7 @@ do
                     exit 0
                     ;;
 
-                "--ls-plugins")
+                "-ls-plugins" | "--ls-plugins")
                     /usr/bin/find $REVEAL_PATH/plugin              \
                         -maxdepth 1 -type d -not -name "plugin"     \
                         -exec basename {} ';'
