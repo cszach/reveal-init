@@ -192,13 +192,14 @@ ABOUT REVEAL_PATH:\n\
         rm $logfile
         exit 0
         ;;
-    "--version")
+    "-version" | "--version")
         echo "reveal-init $VERSION"
         rm $logfile
         exit 0
         ;;
-    "--delete-log")
+    "-delete-log" | "--delete-log")
         rm /tmp/reveal-init-*
+        echo -e "\r\033[1;32mINFO   \033[0m Deleted all reveal-init log files"
         exit 0
         ;;
 esac
@@ -289,7 +290,7 @@ do
                     log "\r\033[1;32mINFO   \033[0m Done checking REVEAL_PATH."
                     if [ $n_err -gt 0 ]; then
                         log "\r\033[1;31mINFO   \033[0m $n_err error(s) found. Please fix them."
-                        printf "$t$t \bLog messages can be found in $logfile\n"
+                        printf "Log messages can be found in $logfile\n"
                     else
                         log "\r\033[1;32mINFO   \033[0m REVEAL_PATH is valid."
                         rm $logfile
@@ -317,7 +318,7 @@ do
 
                 "-v" | "-verbose" | "--verbose") verbose=1;;
 
-                "--git")
+                "-git" | "--git")
                     [ -z $(command -v git) ] \
                         && log "--git: Git is not installed, option ignored" 1 \
                         || git="1"
