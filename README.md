@@ -256,7 +256,7 @@ reveal-init -t "Boring slides | Boring Inc." --header "There's nothing here.<br>
 2. Get a clone of [Reveal.js's repository](https://github.com/hakimel/reveal.js)
 (e.g. with `git clone https://github.com/hakimel/reveal.js`). You can also get
 a clone of a fork of it.
-3. Set `$REVEAL_PATH` to the absolute path of the clone on your computer.
+3. Set `REVEAL_PATH` to the absolute path of the clone on your computer.
 4. Put `reveal-init` into a PATH directory (e.g. `/usr/bin`, `/usr/local/bin`,
 `~/.local/bin`) .
 5. Run `reveal-init ?` to learn how to use it.
@@ -280,7 +280,8 @@ belongs to the Public Domain. From the license text:
 In some countries, this may not be legally possible. If so:
 
 > I grant you the right to use this work for any purpose without any condition,
-> unless there exist conditions required by law.
+> unless there exist conditions required by law. This software does not come
+> with any warranty or liability.
 
 The above statement is the written permission from the author and may be
 referred to as the "prior written permission" or any phrase that conveys the
