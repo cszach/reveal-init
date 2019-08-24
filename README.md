@@ -23,6 +23,7 @@ Every time you want to start a Reveal.js presentation project, you probably
 have to copy the whole Reveal.js repository, which contains unnecessary files
 (e.g. the ones for development, unnecessary themes & plugins) that you'll have
 to delete later. `reveal-init` helps you get through that intimidating process.
+Just use `reveal-init` and start working on your slides right away!
 
 :sunglasses: Just `reveal-init` and see what you've got
 -------------------------------------------------------
