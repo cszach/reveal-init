@@ -125,7 +125,7 @@ function reformat_path() {
 # ===========================
 
 case $1 in
-    "-h" | "--help" | "?")
+    "-h" | "-help" | "--help" | "?")
         printf "\
 reveal-init: Create a new Reveal.js presentation project from files in REVEAL_PATH\n\
 USAGE: reveal-init -h|--help|?|--version\n\
@@ -324,8 +324,8 @@ do
                         || git="1"
                     ;;
 
-                "--short-tab") t="  ";;
-                "--long-tab") t="    ";;
+                "-short-tab" | "--short-tab") t="  ";;
+                "-long-tab" | "--long-tab") t="    ";;
 
                 *) log "Invalid option '$1', aborting..." 3;;
             esac
