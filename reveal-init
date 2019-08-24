@@ -132,7 +132,7 @@ USAGE: reveal-init -h|--help|?|--version\n\
        reveal-init --delete-log\n\
        reveal-init [-d DIR] -c\n\
        reveal-init [-d DIR] --ls-themes|--ls-plugins\n\
-       reveal-init [-v|--verbose] [-d DIR] [--git] [-t TITLE] [-f THEME]\n\
+       reveal-init [-d DIR] [-v|--verbose] [--git] [-t TITLE] [-f THEME]\n\
                    [--plugin[s] PLUGIN_1 PLUGIN_2 ... -]\n\
                    [--lib FILE_1 FILE_2 ... -]\n\
                    [--header HEADER] [-n NUM] [--short-tab|--long-tab] DIRNAME\n\
@@ -140,10 +140,14 @@ USAGE: reveal-init -h|--help|?|--version\n\
                    ...where DIRNAME is the directory where the new Reveal.js\n\
                    presentation project will reside in.\n\
                    \n\
+GENERIC OPTIONS\n\
+\n\
   -h, --help, ?           Print this help and exit.\n\
       --version           Print version and exit.\n\
   -v, --verbose           Inform what the program is doing to stdout.\n\
-      --delete-log        Delete all reveal-init log files found in /tmp.\n\
+\n\
+REVEAL_PATH OPTIONS\n\
+\n\
   -d DIR                  Set DIR as REVEAL_PATH (temporary).\n\
   -D DIR                  Same as -d.\n\
   -c, --check             Check if REVEAL_PATH is valid.\n\
@@ -152,6 +156,9 @@ USAGE: reveal-init -h|--help|?|--version\n\
                           options will be ignored.\n\
       --ls-themes         List all themes that are available for import.\n\
       --ls-plugins        List all plugins that are available for import.\n\
+\n\
+PROJECT & SLIDES OPTIONS\n\
+\n\
       --git               Initiate project as a Git repository.\n\
   -t, --title TITLE       Set presentation's <title>.\n\
   -f, --theme THEME       Theme (found in REVEAL_PATH/css/theme as a CSS file)\n\
@@ -178,6 +185,10 @@ USAGE: reveal-init -h|--help|?|--version\n\
                           must be ended with a dash (\"-\"). Paths must be\n\
                           relative to the REVEAL_PATH/lib directory. Without\n\
                           this option, copy the whole REVEAL_PATH/lib directory.\n\
+\n\
+MISC OPTIONS\n\
+\n\
+      --delete-log        Delete all reveal-init log files found in /tmp.\n\
 \n\
 ABOUT REVEAL_PATH:\n\
 \n\
