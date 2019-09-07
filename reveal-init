@@ -8,18 +8,18 @@
 
 # === MAIN VARIABLES ===
 
-dirname=""   # Project directory of the slide deck
-title=""     # Title of the presentation (which goes into <title></title>)
-theme=""     # Theme for the slide deck
-plugins=""   # List of plugins (separated by white spaces)
-n_slide=0    # Number of empty non-vertical slides to create
-git=0        # Initiate a Git repository? (0 = false, true otherwise)
-copylib=1    # Copy everything in REVEAL_PATH/lib? (0 for no, yes otherwise)
-libfiles=""  # Paths of files in REVEAL_PATH/lib (relative) to copy and import
+dirname=""    # Project directory of the slide deck
+title=""      # Title of the presentation (which goes into <title></title>)
+theme="-"     # Theme for the slide deck
+plugins="-"   # List of plugins (separated by \n)
+n_slide=0     # Number of empty non-vertical slides to create
+git=0         # Initiate a Git repository? (0 = false, true otherwise)
+libfiles="*"  # Paths of files in REVEAL_PATH/lib (relative) to copy and import
+              # (separated by \n)
 
-n_err=0      # Number of errors
-verbose=0    # Be verbose? (0 = no, otherwise yes)
-logfile="$(mktemp /tmp/reveal-init-XXXXXXXX)"  # Path to log file
+n_err=0       # Number of errors
+verbose=0     # Be verbose? (0 = no, otherwise yes)
+logfile=""    # Path to log file
 
 # ======================
 
@@ -39,7 +39,8 @@ t="    "  # Tab
 
 alias printf="/usr/bin/printf" echo="/usr/bin/echo" cp="/usr/bin/cp" \
       ls="/usr/bin/ls" mkdir="/usr/bin/mkdir" touch="/usr/bin/touch"  \
-      command="/usr/bin/command" tee="/usr/bin/tee" wc="/usr/bin/wc"
+      command="/usr/bin/command" tee="/usr/bin/tee" wc="/usr/bin/wc"   \
+      readlink="/usr/bin/readlink"
 
 # ===============
 
@@ -71,7 +72,7 @@ function log() {
         "3" | "fatal")
             printf "\033[1;31mFATAL  \033[0m $1\n" | tee -a $logfile
             [[ $3 -ne 0 ]] && printf "Log messages can be found in $logfile\n" \
-                           || rm $logfile
+                           || rm -f $logfile
             exit 1
             ;;
         *)
@@ -113,14 +114,6 @@ function check_reveal_path() {
         log "No plugin found" 1 && plugins="-"
 }
 
-
-# Given a directory path, check if its last character is "/"
-# and echo the path with the forward slash removed.
-function reformat_path() {
-    [[ ${1:$(echo -n $1 | wc -c)-1:1} == "/" ]]  \
-        && echo -n ${1:0:$(echo -n $1 | wc -c)-1} \
-        || echo -n $1
-}
 
 # ===========================
 
@@ -200,12 +193,10 @@ ABOUT REVEAL_PATH:\n\
   script with similar functionality that you are using with, for example:\n\
   \n\
     export REVEAL_PATH=\"\$HOME/Projects/Forks/reveal.js\"\n"
-        rm $logfile
         exit 0
         ;;
     "-version" | "--version")
         echo "reveal-init $VERSION"
-        rm $logfile
         exit 0
         ;;
     "-delete-log" | "--delete-log")
@@ -218,9 +209,12 @@ esac
 [ $# -eq 0 ] && \
     log "Directory name not given.\n$t$t \bInvoke '--help' for more information" 3
 
+# Create a log file for this session in /tmp
+logfile="$(mktemp /tmp/reveal-init-XXXXXXXX)"
+
 # === PROCESS OPTIONS ===
 
-REVEAL_PATH=$(reformat_path $REVEAL_PATH)
+REVEAL_PATH=$(readlink -m $REVEAL_PATH)
 opt=""
 
 for arg in "$@"
@@ -237,36 +231,33 @@ do
 
     case $opt in
         "-d" | "-D")
-            REVEAL_PATH=$(reformat_path $1)
+            REVEAL_PATH=$(readlink -m $1)
             opt=""
             ;;
         "-t" | "-title" | "--title")
-            title=$1
+            title="$1"
             opt=""
             ;;
         "-f" | "-theme" | "--theme")
-            if [[ $1 == "-" ]] || [[ $theme == "-" ]]; then
+            if [[ $1 == "-" ]]; then
                 theme="-"
-            elif [[ $1 == "all" ]] || [[ $1 == "*" ]]; then
-                theme="*"
-            elif [ -f "$REVEAL_PATH"/css/theme/$1.css ]; then
-                theme="$1"
+            elif [[ $1 == "all" ]] || [[ $1 == '*' ]]; then
+                theme='*'
             else
-                log "Theme '$1' ($REVEAL_PATH/css/theme/$1.css) not found" 2
+                theme="$1"
             fi
             opt=""
             ;;
         "-plugin" | "--plugin" | "-plugins" | "--plugins")
-            if [[ $1 != "-" ]]; then
-                [ -d "$REVEAL_PATH"/plugin/$1 ] \
-                  && [[ $plugins != "-" ]] && plugins="$plugins$1 " \
-                  || log "Plugin '$1' ("$REVEAL_PATH"/plugin/$1) not found" 2
+            if [[ $1 != "-" ]]
+            then
+                plugins="$plugins$1\n"
             else
                 opt=""
             fi
             ;;
         "-header" | "--header")
-            [[ $1 == "_TITLE" ]] && header=$title || header=$1
+            [[ $1 == "_TITLE" ]] && header="$title" || header="$1"
             opt=""
             ;;
         "-n")
@@ -276,24 +267,28 @@ do
             opt=""
             ;;
         "-lib" | "--lib")
-            copylib=0
-
-            if [[ $1 == "-" ]]
+            if [[ $1 != "-" ]]
             then
-                opt=""
-            elif [[ -d "$REVEAL_PATH/lib/$1" ]] || [[ -f "$REVEAL_PATH/lib/$1" ]]
-            then
-                libfiles="$libfiles""$1 "
+                libfiles="$libfiles$1\n"
             else
-                log "File $REVEAL_PATH/lib/$1 doesn't exist, ignoring...." 1
+                opt=""
             fi
             ;;
         *)
             case $1 in
-                "-d" | "-D" | "-t" | "-title" | "--title" | "-f" | "-theme" \
-                | "--theme" | "-plugin" | "--plugin" | "-plugins" | "--plugins"\
-                | "-lib" | "--lib" | "-header" | "--header" | "-n")
+                "-d" | "-D" | "-t" | "-title" | "--title" | "-f" \
+                | "-theme" | "--theme" | "-header" | "--header" | "-n")
                     opt=$1;;
+
+                "-plugin" | "--plugin" | "-plugins" | "--plugins")
+                    opt=$1
+                    plugins=""
+                    ;;
+
+                "-lib" | "--lib")
+                    opt=$1
+                    libfiles=""
+                    ;;
 
                 "-c" | "-check" | "--check")
                     verbose=1
@@ -345,8 +340,9 @@ do
     shift
 done
 
-[[ $theme == "" ]] && theme="-"
-[[ $plugins == "" ]] && plugins="-"
+[ -z $theme ] && theme="-"
+[ -z $plugins ] && plugins="-"
+[ -z $libfiles ] && libfiles="-"
 
 # =======================
 
@@ -400,13 +396,15 @@ mkdir -- "$dirname"/css
 
 # Copy themes
 
-[[ $theme != "-" ]] && log "Creating $dirname/css/theme/"  \
-                    && mkdir "$dirname"/css/theme &&        \
+mkdir "$dirname/css/theme"
 case $theme in
-    "*")
+    '*')
         log "Copying all CSS and SCSS files in \$REVEAL_PATH/css/theme/ into $dirname/css/theme"
         cp -- "$REVEAL_PATH"/css/theme/*.css \
             "$REVEAL_PATH"/css/theme/source/*.scss "$dirname"/css/theme/
+        ;;
+    '-')
+        rm -rf "$dirname/css/theme"
         ;;
     *)
         log "Copying \$REVEAL_PATH/css/theme/$theme.css to $dirname/css/theme/$theme.css"
@@ -421,9 +419,16 @@ esac
 
 [[ $plugins != "-" ]] && log "Creating $dirname/plugin/"  \
                       && mkdir -- "$dirname"/plugin &&     \
-for plugin in $plugins; do
-    log "Copying \$REVEAL_PATH/plugin/$plugin to $dirname/plugin/$plugin"
-    cp -r -- "$REVEAL_PATH"/plugin/$plugin "$dirname"/plugin/$plugin
+echo -e $plugins | while read plugin
+do
+    [ -z $plugin ] && continue
+    if [ -d "$REVEAL_PATH/plugin/$plugin" ]
+    then
+        log "Copying \$REVEAL_PATH/plugin/$plugin to $dirname/plugin/$plugin"
+        cp -r -- "$REVEAL_PATH/plugin/$plugin" "$dirname/plugin/$plugin"
+    else
+        log "Plugin '$plugin' not found, ignoring..." 1
+    fi
 done
 
 # Copy js/ (supposedly contains reveal.js) and reveal.css
@@ -435,17 +440,30 @@ cp -- "$REVEAL_PATH"/css/reveal.css "$dirname"/css/reveal.css
 
 # Copy lib/
 
-if [[ $copylib == "0" ]]; then
-    mkdir "$dirname/lib"
-    for libfile in $libfiles
-    do
-        log "Copying \$REVEAL_PATH/lib/$libfile into $dirname/lib/"
-        cp -r -- "$REVEAL_PATH/lib/$libfile" "$dirname"/lib
-    done
-else
-    log "Copying \$REVEAL_PATH/lib/ into $dirname/"
-    [ -d "$REVEAL_PATH"/lib ] && cp -r -- "$REVEAL_PATH"/lib "$dirname"
-fi
+mkdir "$dirname/lib"
+
+case $libfiles in
+    '*')
+        log "Copying \$REVEAL_PATH/lib/ into $dirname/"
+        [ -d "$REVEAL_PATH"/lib ] && cp -r -- "$REVEAL_PATH"/lib "$dirname"
+        ;;
+    '-')
+        rm -rf "$dirname/lib"
+        ;;
+    *)
+        echo -e "$libfiles" | while read libfile
+        do
+            [ -z $libfile ] && continue
+            if [ -e "$REVEAL_PATH/lib/$libfile" ]
+            then
+                log "Copying \$REVEAL_PATH/lib/$libfile into $dirname/lib/"
+                cp -r -- "$REVEAL_PATH/lib/$libfile" "$dirname"/lib
+            else
+                log "File '$REVEAL_PATH/lib/$libfile' not found, ignoring..." 1
+            fi
+        done
+        ;;
+esac
 
 # Create index.html
 
@@ -497,7 +515,10 @@ then
     printf "$t$t<script>\n$t$t$t\x52eveal.initialize();\n$t$t</script>\n" >> $indexf
 else
     printf "$t$t<script>\n$t$t$t\x52eveal.initialize({\n$t$t$t$t\x64ependencies: [\n" >> $indexf
-    for plugin in $plugins; do
+    echo -e $plugins | while read plugin
+    do
+        [ -z $plugin ] && continue
+
         js_indexf=""
 
         # Guess plugin's index JavaScript file from the plugin's directory name
@@ -532,5 +553,5 @@ printf "$t</body>\n</html>\n" >> $indexf
 verbose=1  # It is necessary to print the following log message to stdout
 log "\r\033[1;32mINFO   \033[0m Generated a new slide deck at $dirname."
 rm $logfile
-unalias printf echo cp ls mkdir touch command tee wc
+unalias printf echo cp ls mkdir touch command tee wc readlink
 exit 0
