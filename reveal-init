@@ -340,9 +340,9 @@ do
     shift
 done
 
-[ -z $theme ] && theme="-"
-[ -z $plugins ] && plugins="-"
-[ -z $libfiles ] && libfiles="-"
+[ -z "$theme" ] && theme="-"
+[ -z "$plugins" ] && plugins="-"
+[ -z "$libfiles" ] && libfiles="-"
 
 # =======================
 
@@ -407,11 +407,17 @@ case $theme in
         rm -rf "$dirname/css/theme"
         ;;
     *)
-        log "Copying \$REVEAL_PATH/css/theme/$theme.css to $dirname/css/theme/$theme.css"
-        cp -- "$REVEAL_PATH"/css/theme/$theme.css "$dirname"/css/theme/$theme.css
-        [ -f "$REVEAL_PATH"/css/theme/source/$theme.scss ] && \
-            log "Copying \$REVEAL_PATH/css/theme/$theme.scss to $dirname/css/theme/$theme.scss"
-            cp -- "$REVEAL_PATH"/css/theme/source/$theme.scss "$dirname"/css/theme/$theme.scss
+        if [ -f "$REVEAL_PATH/css/theme/$theme.css" ]
+        then
+            log "Copying \$REVEAL_PATH/css/theme/$theme.css to $dirname/css/theme/$theme.css"
+            cp -- "$REVEAL_PATH/css/theme/$theme.css" "$dirname/css/theme/$theme.css"
+            [ -f "$REVEAL_PATH"/css/theme/source/$theme.scss ] && \
+                log "Copying \$REVEAL_PATH/css/theme/$theme.scss to $dirname/css/theme/$theme.scss"
+                cp -- "$REVEAL_PATH/css/theme/source/$theme.scss" "$dirname/css/theme/$theme.scss"
+        else
+            log "Theme '$theme' not found, ignoring..." 1
+            rm -rf "$dirname/css/theme"
+        fi
         ;;
 esac
 
@@ -421,7 +427,7 @@ esac
                       && mkdir -- "$dirname"/plugin &&     \
 echo -e $plugins | while read plugin
 do
-    [ -z $plugin ] && continue
+    [ -z "$plugin" ] && continue
     if [ -d "$REVEAL_PATH/plugin/$plugin" ]
     then
         log "Copying \$REVEAL_PATH/plugin/$plugin to $dirname/plugin/$plugin"
@@ -453,7 +459,7 @@ case $libfiles in
     *)
         echo -e "$libfiles" | while read libfile
         do
-            [ -z $libfile ] && continue
+            [ -z "$libfile" ] && continue
             if [ -e "$REVEAL_PATH/lib/$libfile" ]
             then
                 log "Copying \$REVEAL_PATH/lib/$libfile into $dirname/lib/"
@@ -477,7 +483,7 @@ $t$t<meta name=\"viewport\" content=\"width=device-width\
 $t$t<title>$title</title>\n\n\
 $t$t<link rel=\"stylesheet\" href=\"css/reveal.css\">\n" > $indexf
 
-[[ $theme != "-" ]] && [[ $theme != "*" ]] && \
+[[ $theme != "-" ]] && [[ $theme != "*" ]] && [ -d "$dirname/css/theme" ] && \
     printf "$t$t<link rel=\"stylesheet\" href=\"css/theme/$theme.css\">\n" >> $indexf
 
 [ -f "$dirname"/lib/css/zenburn.css ] && \
@@ -515,7 +521,7 @@ then
     printf "$t$t<script>\n$t$t$t\x52eveal.initialize();\n$t$t</script>\n" >> $indexf
 else
     printf "$t$t<script>\n$t$t$t\x52eveal.initialize({\n$t$t$t$t\x64ependencies: [\n" >> $indexf
-    echo -e $plugins | while read plugin
+    ls -1A "$dirname/plugin" | while read plugin
     do
         [ -z $plugin ] && continue
 
