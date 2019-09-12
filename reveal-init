@@ -34,8 +34,7 @@ t="    "  # Tab
 # === ALIASES ===
 # These aliases are created to avoid security risks. If you think they are
 # causing problems, remove the alias command invocation (also unalias at the
-# near end of the file). Some aliases may also be useless because some commands
-# are your Shell's built-ins.
+# near end of the file).
 
 alias printf="/usr/bin/printf" echo="/usr/bin/echo" cp="/usr/bin/cp" \
       ls="/usr/bin/ls" mkdir="/usr/bin/mkdir" touch="/usr/bin/touch"  \
@@ -59,24 +58,24 @@ alias printf="/usr/bin/printf" echo="/usr/bin/echo" cp="/usr/bin/cp" \
 #    3 fatal      Extreme severity, the program cannot further work.
 #
 # By design, any other value for the second parameter is treated as "info". This
-# means for severity of 'info', the second parameter may be omitted.
+# means for the severity of 'info', the second parameter may be omitted.
 function log() {
     case $2 in
         "1" | "warn")
-            printf "\033[1;33mWARNING\033[0m $1\n" | tee -a $logfile
+            printf "\033[1;33mWARNING\033[0m $1\n" | tee -a "$logfile"
             ;;
         "2" | "err" | "error")
-            printf "\033[1;31mERROR  \033[0m $1\n" | tee -a $logfile
+            printf "\033[1;31mERROR  \033[0m $1\n" | tee -a "$logfile"
             n_err=$(( $n_err + 1 ))
             ;;
         "3" | "fatal")
-            printf "\033[1;31mFATAL  \033[0m $1\n" | tee -a $logfile
+            printf "\033[1;31mFATAL  \033[0m $1\n" | tee -a "$logfile"
             [[ $3 -ne 0 ]] && printf "Log messages can be found in $logfile\n" \
-                           || rm -f $logfile
+                           || rm -f "$logfile"
             exit 1
             ;;
         *)
-            printf "INFO    $1\n" >> $logfile
+            printf "INFO    $1\n" >> "$logfile"
             [[ $verbose != "0" ]] && printf "INFO    $1\n"
             ;;
     esac
@@ -100,24 +99,24 @@ function check_reveal_path() {
 
     ! [ -d "$REVEAL_PATH" ] && log "REVEAL_PATH ($REVEAL_PATH) not found" 3
 
-    ! [ -f "$REVEAL_PATH"/css/reveal.css ] && log "\$REVEAL_PATH/css/reveal.css not found" 2
-    ! [ -d "$REVEAL_PATH"/css/theme ] || [[ -z $(ls -A "$REVEAL_PATH"/css/theme) ]] && \
+    ! [ -f "$REVEAL_PATH/css/reveal.css" ] && log "\$REVEAL_PATH/css/reveal.css not found" 2
+    ! [ -d "$REVEAL_PATH/css/theme" ] || [[ -z "$(ls -A $REVEAL_PATH/css/theme)" ]] && \
         log "No theme found" 1 && theme="-"
 
-    ! [ -f "$REVEAL_PATH"/js/reveal.js ] && log "\$REVEAL_PATH/js/reveal.js not found" 2
+    ! [ -f "$REVEAL_PATH/js/reveal.js" ] && log "\$REVEAL_PATH/js/reveal.js not found" 2
 
-    ! [ -f "$REVEAL_PATH"/lib/js/head.min.js ] && \
+    ! [ -f "$REVEAL_PATH/lib/js/head.min.js" ] && \
         log "\$REVEAL_PATH/lib/js/head.min.js not found, plugins won't be loaded" 1 && \
         plugins="-"
 
-    ! [ -d "$REVEAL_PATH"/plugin ] || [[ -z $(ls -A "$REVEAL_PATH/plugin") ]] && \
+    ! [ -d "$REVEAL_PATH/plugin" ] || [[ -z "$(ls -A $REVEAL_PATH/plugin)" ]] && \
         log "No plugin found" 1 && plugins="-"
 }
 
 
 # ===========================
 
-case $1 in
+case "$1" in
     "-h" | "-help" | "--help" | "?")
         printf "\
 reveal-init: Create a new Reveal.js presentation project from files in REVEAL_PATH\n\
@@ -214,24 +213,24 @@ logfile="$(mktemp /tmp/reveal-init-XXXXXXXX)"
 
 # === PROCESS OPTIONS ===
 
-REVEAL_PATH=$(readlink -m $REVEAL_PATH)
+REVEAL_PATH=$(readlink -m "$REVEAL_PATH")
 opt=""
 
 for arg in "$@"
 do
     # If there's only one argument...
     if [ $# -eq 1 ] && \
-       [[ $1 != "-c" ]] && [[ $1 != "-check" ]] && [[ $1 != "--check" ]] && \
-       [[ $1 != "-ls-themes" ]] && [[ $1 != "--ls-themes" ]] && \
-       [[ $1 != "-ls-plugins" ]] && [[ $1 != "--ls-plugins" ]]
+       [[ "$1" != "-c" ]] && [[ "$1" != "-check" ]] && [[ "$1" != "--check" ]] && \
+       [[ "$1" != "-ls-themes" ]] && [[ "$1" != "--ls-themes" ]] && \
+       [[ "$1" != "-ls-plugins" ]] && [[ "$1" != "--ls-plugins" ]]
     then
         [ -d "$1" ] && log "Directory '$1' exists" 3
-        dirname=$1 && break
+        dirname="$1" && break
     fi
 
-    case $opt in
+    case "$opt" in
         "-d" | "-D")
-            REVEAL_PATH=$(readlink -m $1)
+            REVEAL_PATH=$(readlink -m "$1")
             opt=""
             ;;
         "-t" | "-title" | "--title")
@@ -239,9 +238,9 @@ do
             opt=""
             ;;
         "-f" | "-theme" | "--theme")
-            if [[ $1 == "-" ]]; then
+            if [[ "$1" == "-" ]]; then
                 theme="-"
-            elif [[ $1 == "all" ]] || [[ $1 == '*' ]]; then
+            elif [[ "$1" == "all" ]] || [[ "$1" == '*' ]]; then
                 theme='*'
             else
                 theme="$1"
@@ -249,7 +248,7 @@ do
             opt=""
             ;;
         "-plugin" | "--plugin" | "-plugins" | "--plugins")
-            if [[ $1 != "-" ]]
+            if [[ "$1" != "-" ]]
             then
                 plugins="$plugins$1\n"
             else
@@ -257,17 +256,17 @@ do
             fi
             ;;
         "-header" | "--header")
-            [[ $1 == "_TITLE" ]] && header="$title" || header="$1"
+            [[ "$1" == "_TITLE" ]] && header="$title" || header="$1"
             opt=""
             ;;
         "-n")
-            [[ $1 =~ ^[0-9]+$ ]] \
-              && n_slide=$1 \
+            [[ "$1" =~ ^[0-9]+$ ]] \
+              && n_slide="$1" \
               || log "-n: Invalid input for number of slides, option ignored" 2
             opt=""
             ;;
         "-lib" | "--lib")
-            if [[ $1 != "-" ]]
+            if [[ "$1" != "-" ]]
             then
                 libfiles="$libfiles$1\n"
             else
@@ -275,18 +274,18 @@ do
             fi
             ;;
         *)
-            case $1 in
+            case "$1" in
                 "-d" | "-D" | "-t" | "-title" | "--title" | "-f" \
                 | "-theme" | "--theme" | "-header" | "--header" | "-n")
-                    opt=$1;;
+                    opt="$1";;
 
                 "-plugin" | "--plugin" | "-plugins" | "--plugins")
-                    opt=$1
+                    opt="$1"
                     plugins=""
                     ;;
 
                 "-lib" | "--lib")
-                    opt=$1
+                    opt="$1"
                     libfiles=""
                     ;;
 
@@ -299,26 +298,26 @@ do
                         printf "Log messages can be found in $logfile\n"
                     else
                         log "\r\033[1;32mINFO   \033[0m REVEAL_PATH is valid."
-                        rm $logfile
+                        rm "$logfile"
                     fi
                     exit 0
                     ;;
 
                 "-ls-themes" | "--ls-themes")
-                    /usr/bin/find $REVEAL_PATH/css/theme           \
+                    /usr/bin/find "$REVEAL_PATH/css/theme"         \
                         -type f -name "*.css"                       \
                         -exec basename -s .css {} ';'
                     [ $? -ne 0 ] && log "It seems that REVEAL_PATH is invalid" 3
-                    rm $logfile
+                    rm "$logfile"
                     exit 0
                     ;;
 
                 "-ls-plugins" | "--ls-plugins")
-                    /usr/bin/find $REVEAL_PATH/plugin              \
+                    /usr/bin/find "$REVEAL_PATH/plugin"            \
                         -maxdepth 1 -type d -not -name "plugin"     \
                         -exec basename {} ';'
                     [ $? -ne 0 ] && log "It seems that REVEAL_PATH is invalid" 3
-                    rm $logfile
+                    rm "$logfile"
                     exit 0
                     ;;
 
@@ -389,19 +388,19 @@ check_reveal_path
 [ $git != "0" ] && log "Initializing Git repository..." && git init -- "$dirname"
 log "Creating $dirname/"
 log "Creating $dirname/js/"
-mkdir -p -- "$dirname"/js
+mkdir -p -- "$dirname/js"
 [ $? -ne 0 ] && log "mkdir failed to create $dirname/" 3 1
 log "Creating $dirname/css/"
-mkdir -- "$dirname"/css
+mkdir -- "$dirname/css"
 
 # Copy themes
 
 mkdir "$dirname/css/theme"
-case $theme in
+case "$theme" in
     '*')
         log "Copying all CSS and SCSS files in \$REVEAL_PATH/css/theme/ into $dirname/css/theme"
         cp -- "$REVEAL_PATH"/css/theme/*.css \
-            "$REVEAL_PATH"/css/theme/source/*.scss "$dirname"/css/theme/
+            "$REVEAL_PATH"/css/theme/source/*.scss "$dirname/css/theme/"
         ;;
     '-')
         rm -rf "$dirname/css/theme"
@@ -411,7 +410,7 @@ case $theme in
         then
             log "Copying \$REVEAL_PATH/css/theme/$theme.css to $dirname/css/theme/$theme.css"
             cp -- "$REVEAL_PATH/css/theme/$theme.css" "$dirname/css/theme/$theme.css"
-            [ -f "$REVEAL_PATH"/css/theme/source/$theme.scss ] && \
+            [ -f "$REVEAL_PATH/css/theme/source/$theme.scss" ] && \
                 log "Copying \$REVEAL_PATH/css/theme/$theme.scss to $dirname/css/theme/$theme.scss"
                 cp -- "$REVEAL_PATH/css/theme/source/$theme.scss" "$dirname/css/theme/$theme.scss"
         else
@@ -423,9 +422,9 @@ esac
 
 # Copy plugins
 
-[[ $plugins != "-" ]] && log "Creating $dirname/plugin/"  \
-                      && mkdir -- "$dirname"/plugin &&     \
-echo -e $plugins | while read plugin
+[[ "$plugins" != "-" ]] && log "Creating $dirname/plugin/"  \
+                      && mkdir -- "$dirname/plugin" &&       \
+echo -e "$plugins" | while read plugin
 do
     [ -z "$plugin" ] && continue
     if [ -d "$REVEAL_PATH/plugin/$plugin" ]
@@ -440,18 +439,18 @@ done
 # Copy js/ (supposedly contains reveal.js) and reveal.css
 
 log "Copying all files in \$REVEAL_PATH/js/ into $dirname/js/"
-cp -r -- "$REVEAL_PATH"/js/* "$dirname"/js/
+cp -r -- "$REVEAL_PATH"/js/* "$dirname/js/"
 log "Copying \$REVEAL_PATH/css/reveal.css to $dirname/css/reveal.css"
-cp -- "$REVEAL_PATH"/css/reveal.css "$dirname"/css/reveal.css
+cp -- "$REVEAL_PATH/css/reveal.css" "$dirname/css/reveal.css"
 
 # Copy lib/
 
 mkdir "$dirname/lib"
 
-case $libfiles in
+case "$libfiles" in
     '*')
         log "Copying \$REVEAL_PATH/lib/ into $dirname/"
-        [ -d "$REVEAL_PATH"/lib ] && cp -r -- "$REVEAL_PATH"/lib "$dirname"
+        [ -d "$REVEAL_PATH/lib" ] && cp -r -- "$REVEAL_PATH/lib" "$dirname"
         ;;
     '-')
         rm -rf "$dirname/lib"
@@ -463,7 +462,7 @@ case $libfiles in
             if [ -e "$REVEAL_PATH/lib/$libfile" ]
             then
                 log "Copying \$REVEAL_PATH/lib/$libfile into $dirname/lib/"
-                cp -r -- "$REVEAL_PATH/lib/$libfile" "$dirname"/lib
+                cp -r -- "$REVEAL_PATH/lib/$libfile" "$dirname/lib"
             else
                 log "File '$REVEAL_PATH/lib/$libfile' not found, ignoring..." 1
             fi
@@ -474,56 +473,56 @@ esac
 # Create index.html
 
 log "Creating index.md"
-touch -- "$dirname"/index.html
-indexf="$dirname"/index.html
+touch -- "$dirname/index.html"
+indexf="$dirname/index.html"
 
 printf "<!DOCTYPE html>\n<html>\n$t<head>\n$t$t<meta charset=\"utf-8\">\n\
 $t$t<meta name=\"viewport\" content=\"width=device-width\
 , initial-scale=1.0, maximum-scale=1.0, user-scalable=no\">\n\n\
 $t$t<title>$title</title>\n\n\
-$t$t<link rel=\"stylesheet\" href=\"css/reveal.css\">\n" > $indexf
+$t$t<link rel=\"stylesheet\" href=\"css/reveal.css\">\n" > "$indexf"
 
-[[ $theme != "-" ]] && [[ $theme != "*" ]] && [ -d "$dirname/css/theme" ] && \
-    printf "$t$t<link rel=\"stylesheet\" href=\"css/theme/$theme.css\">\n" >> $indexf
+[[ "$theme" != "-" ]] && [[ "$theme" != "*" ]] && [ -d "$dirname/css/theme" ] && \
+    printf "$t$t<link rel=\"stylesheet\" href=\"css/theme/$theme.css\">\n" >> "$indexf"
 
-[ -f "$dirname"/lib/css/zenburn.css ] && \
+[ -f "$dirname/lib/css/zenburn.css" ] && \
 printf \
 "\n$t$t<!-- Theme used for syntax highlighting of code -->\n\
-$t$t<link rel=\"stylesheet\" href=\"lib/css/zenburn.css\">\n" >> $indexf
+$t$t<link rel=\"stylesheet\" href=\"lib/css/zenburn.css\">\n" >> "$indexf"
 
-[ -f "$dirname"/lib/js/html5shiv.js ] && \
+[ -f "$dirname/lib/js/html5shiv.js" ] && \
 printf \
 "\n$t$t<!--[if lt IE 9]>\n$t$t$t<script src=\"lib/js/html5shiv.js\">\
-</script>\n$t$t<![endif]-->\n" >> $indexf
+</script>\n$t$t<![endif]-->\n" >> "$indexf"
 
-printf "$t</head>\n$t<body>\n$t$t<div class=\"reveal\">\n$t$t$t<div class=\"slides\">\n" >> $indexf
+printf "$t</head>\n$t<body>\n$t$t<div class=\"reveal\">\n$t$t$t<div class=\"slides\">\n" >> "$indexf"
 
-[[ -n $header ]] && \
-    printf "$t$t$t$t<section>\n$t$t$t$t$t<h1>$header</h1>\n$t$t$t$t</section>\n" >> $indexf
+[[ -n "$header" ]] && \
+    printf "$t$t$t$t<section>\n$t$t$t$t$t<h1>$header</h1>\n$t$t$t$t</section>\n" >> "$indexf"
 
 if [ $n_slide -gt 0 ]; then
     while [ $n_slide -ne 0 ]
     do
-        printf "$t$t$t$t<section>\n$t$t$t$t</section>\n" >> $indexf
+        printf "$t$t$t$t<section>\n$t$t$t$t</section>\n" >> "$indexf"
         n_slide=$(( $n_slide - 1))
     done
 fi
 
-printf "$t$t$t</div>\n$t$t</div>\n\n" >> $indexf
+printf "$t$t$t</div>\n$t$t</div>\n\n" >> "$indexf"
 
-[ -f "$dirname"/lib/js/head.min.js ] && \
-    printf "$t$t<script src=\"lib/js/head.min.js\"></script>\n" >> $indexf
+[ -f "$dirname/lib/js/head.min.js" ] && \
+    printf "$t$t<script src=\"lib/js/head.min.js\"></script>\n" >> "$indexf"
 
-printf "$t$t<script src=\"js/reveal.js\"></script>\n\n" >> $indexf
+printf "$t$t<script src=\"js/reveal.js\"></script>\n\n" >> "$indexf"
 
-if [[ $plugins == "-" ]]
+if [[ "$plugins" == "-" ]]
 then
-    printf "$t$t<script>\n$t$t$t\x52eveal.initialize();\n$t$t</script>\n" >> $indexf
+    printf "$t$t<script>\n$t$t$t\x52eveal.initialize();\n$t$t</script>\n" >> "$indexf"
 else
-    printf "$t$t<script>\n$t$t$t\x52eveal.initialize({\n$t$t$t$t\x64ependencies: [\n" >> $indexf
+    printf "$t$t<script>\n$t$t$t\x52eveal.initialize({\n$t$t$t$t\x64ependencies: [\n" >> "$indexf"
     ls -1A "$dirname/plugin" | while read plugin
     do
-        [ -z $plugin ] && continue
+        [ -z "$plugin" ] && continue
 
         js_indexf=""
 
@@ -531,33 +530,33 @@ else
 
         posb_fname=("$plugin.js" "${plugin:0:${#plugin}-3}.js" "$plugin" "script.js" "index.js")
 
-        for tfname in ${posb_fname[@]}
+        for tfname in "${posb_fname[@]}"
         do
-            if [[ -f "$dirname"/plugin/$plugin/${tfname:0:${#tfname}-3}.min.js ]]
+            if [[ -f "$dirname/plugin/$plugin/${tfname:0:${#tfname}-3}.min.js" ]]
             then
-                js_indexf=${tfname:0:${#tfname}-3}.min.js
+                js_indexf="${tfname:0:${#tfname}-3}.min.js"
                 break
-            elif [[ -f "$dirname"/plugin/$plugin/$tfname ]]
+            elif [[ -f "$dirname/plugin/$plugin/$tfname" ]]
             then
-                js_indexf=$tfname
+                js_indexf="$tfname"
                 break
             fi
         done
 
-        if [ -z $js_indexf ]; then
+        if [ -z "$js_indexf" ]; then
             log "Failed to get plugin '$plugin''s JavaScript file to load from, please do this manually" 1
             continue
         fi
 
-        printf "$t$t$t$t$t{ src: 'plugin/$plugin/$js_indexf' },\n" >> $indexf
+        printf "$t$t$t$t$t{ src: 'plugin/$plugin/$js_indexf' },\n" >> "$indexf"
     done
-    printf "$t$t$t$t]\n$t$t$t});\n$t$t</script>\n" >> $indexf
+    printf "$t$t$t$t]\n$t$t$t});\n$t$t</script>\n" >> "$indexf"
 fi
 
-printf "$t</body>\n</html>\n" >> $indexf
+printf "$t</body>\n</html>\n" >> "$indexf"
 
 verbose=1  # It is necessary to print the following log message to stdout
 log "\r\033[1;32mINFO   \033[0m Generated a new slide deck at $dirname."
-rm $logfile
+rm "$logfile"
 unalias printf echo cp ls mkdir touch command tee wc readlink
 exit 0
