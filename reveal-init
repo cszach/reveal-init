@@ -39,7 +39,7 @@ t="    "  # Tab
 alias printf="/usr/bin/printf" echo="/usr/bin/echo" cp="/usr/bin/cp" \
       ls="/usr/bin/ls" mkdir="/usr/bin/mkdir" touch="/usr/bin/touch"  \
       command="/usr/bin/command" tee="/usr/bin/tee" wc="/usr/bin/wc"   \
-      readlink="/usr/bin/readlink"
+      readlink="/usr/bin/readlink" sort="/usr/bin/sort" grep="/usr/bin/grep"
 
 # ===============
 
@@ -205,11 +205,11 @@ ABOUT REVEAL_PATH:\n\
         ;;
 esac
 
-[ $# -eq 0 ] && \
-    log "Directory name not given.\n$t$t \bInvoke '--help' for more information" 3
-
 # Create a log file for this session in /tmp
 logfile="$(mktemp /tmp/reveal-init-XXXXXXXX)"
+
+[ $# -eq 0 ] && \
+    log "Directory name not given.\n$t$t \bInvoke '--help' for more information" 3
 
 # === PROCESS OPTIONS ===
 
@@ -306,7 +306,7 @@ do
                 "-ls-themes" | "--ls-themes")
                     /usr/bin/find "$REVEAL_PATH/css/theme"         \
                         -type f -name "*.css"                       \
-                        -exec basename -s .css {} ';'
+                        -exec /usr/bin/basename -s .css {} ';'
                     [ $? -ne 0 ] && log "It seems that REVEAL_PATH is invalid" 3
                     rm "$logfile"
                     exit 0
@@ -315,7 +315,7 @@ do
                 "-ls-plugins" | "--ls-plugins")
                     /usr/bin/find "$REVEAL_PATH/plugin"            \
                         -maxdepth 1 -type d -not -name "plugin"     \
-                        -exec basename {} ';'
+                        -exec /usr/bin/basename {} ';'
                     [ $? -ne 0 ] && log "It seems that REVEAL_PATH is invalid" 3
                     rm "$logfile"
                     exit 0
@@ -456,15 +456,43 @@ case "$libfiles" in
         rm -rf "$dirname/lib"
         ;;
     *)
-        echo -e "$libfiles" | while read libfile
+        # Current implementation
+        #
+        # echo -e "$libfiles" | while read libfile
+        # do
+        #     [ -z "$libfile" ] && continue
+        #     if [ -e "$REVEAL_PATH/lib/$libfile" ]
+        #     then
+        #         log "Copying \$REVEAL_PATH/lib/$libfile into $dirname/lib/"
+        #         cp -r -- "$REVEAL_PATH/lib/$libfile" "$dirname/lib"
+        #     else
+        #         log "File '$REVEAL_PATH/lib/$libfile' not found, ignoring..." 1
+        #     fi
+        # done
+
+        echo -e "$libfiles" | sort | while read libfile
         do
+            # Eliminate trailing forward slashes in the path
+            while [ "${libfile:${#libfile}-1:1}" == "/" ]
+            do
+                libfile="${libfile:0:${#libfile}-1}"
+            done
+
+            # If $libfile is empty then move on
             [ -z "$libfile" ] && continue
-            if [ -e "$REVEAL_PATH/lib/$libfile" ]
+
+            if [ -d "$REVEAL_PATH/lib/$libfile" ]
             then
-                log "Copying \$REVEAL_PATH/lib/$libfile into $dirname/lib/"
-                cp -r -- "$REVEAL_PATH/lib/$libfile" "$dirname/lib"
+                [ $(echo -e "$libfiles" | grep -cP '^'"$libfile"'[/].+') -eq 0 ] \
+                    && cp -r "$REVEAL_PATH/lib/$libfile" "$dirname/lib"          \
+                    || mkdir "$dirname/lib/$libfile"
+            elif [ -f "$REVEAL_PATH/lib/$libfile" ]
+            then
+                [ -d "$dirname/lib/$(dirname $libfile)" ] \
+                    && cp "$REVEAL_PATH/lib/$libfile" "$dirname/lib/$(dirname $libfile)" \
+                    || cp "$REVEAL_PATH/lib/$libfile" "$dirname/lib/"
             else
-                log "File '$REVEAL_PATH/lib/$libfile' not found, ignoring..." 1
+                log "File '\$REVEAL_PATH/lib/$libfile' not found, ignoring..." 1
             fi
         done
         ;;
