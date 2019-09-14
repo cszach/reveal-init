@@ -586,5 +586,5 @@ printf "$t</body>\n</html>\n" >> "$indexf"
 verbose=1  # It is necessary to print the following log message to stdout
 log "\r\033[1;32mINFO   \033[0m Generated a new slide deck at $dirname."
 rm "$logfile"
-unalias printf echo cp ls mkdir touch command tee wc readlink
+unalias printf echo cp ls mkdir touch command tee wc readlink sort grep
 exit 0
