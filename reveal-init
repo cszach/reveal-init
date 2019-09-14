@@ -43,39 +43,49 @@ alias printf="/usr/bin/printf" echo="/usr/bin/echo" cp="/usr/bin/cp" \
 
 # ===============
 
-# A simple function for logging. Requires 3 parameters
+# A simple function for logging. Requires at least 2 parameters
 #     $1: Log message
 #     $2: Severity of the event being logged
 #     $3: Put a message to remind the user that log messages are kept in
 #         $logfile (only touched if $2 is "3" or "fatal")
+#     $4: A custom ANSI escape code to modify the color
 #
 # Valid values for the second parameter are:
-#    0 info       No severity, everything is working as expected.
-#    1 warn       Mild severity, something is wrong but can be easily manually
-#                 fixed later.
-#    2 err        High severity, something is wrong and can hardly be fixed.
-#      error      Same as err.
-#    3 fatal      Extreme severity, the program cannot further work.
+#    0, info        No severity, everything is working as expected.
+#    1, warn        Mild severity, something is wrong but can be easily manually
+#                   fixed later.
+#    2, err, error  High severity, something is wrong and can hardly be fixed.
+#    3, fatal       Extreme severity, the program cannot further work.
 #
-# By design, any other value for the second parameter is treated as "info". This
-# means for the severity of 'info', the second parameter may be omitted.
+# Valid values for the fourth parameter have the following format: X;3Y
+# ...where X can be 0, 1, or 4, and Y can be anywhere in between 0 and 7.
+#
+# By design, any other value for the second parameter is treated as "info".
+# This means for the severity of 'info', the second parameter may be omitted.
 function log() {
+    nc='\033[0m'
+    color=$(echo "$4" | grep -oP '^[014];3[0-7]$')
+
     case $2 in
         "1" | "warn")
-            printf "\033[1;33mWARNING\033[0m $1\n" | tee -a "$logfile"
+            [ -z "$color" ] && color='1;33'
+            printf '\033['"$color"'m'"WARNING$nc $1\n" | tee -a "$logfile"
             ;;
         "2" | "err" | "error")
-            printf "\033[1;31mERROR  \033[0m $1\n" | tee -a "$logfile"
+            [ -z "$color" ] && color='1;31'
+            printf '\033['"$color"'m'"ERROR  $nc $1\n" | tee -a "$logfile"
             n_err=$(( $n_err + 1 ))
             ;;
         "3" | "fatal")
-            printf "\033[1;31mFATAL  \033[0m $1\n" | tee -a "$logfile"
+            [ -z "$color" ] && color='1;31'
+            printf '\033['"$color"'m'"FATAL  $nc $1\n" | tee -a "$logfile"
             [[ $3 -ne 0 ]] && printf "Log messages can be found in $logfile\n" \
                            || rm -f "$logfile"
             exit 1
             ;;
         *)
-            printf "INFO    $1\n" >> "$logfile"
+            [ -z "$color" ] && color='' || color='\033['"$color"'m'
+            printf "$color""INFO$nc    $1\n" >> "$logfile"
             [[ $verbose != "0" ]] && printf "INFO    $1\n"
             ;;
     esac
@@ -84,7 +94,8 @@ function log() {
 }
 
 
-# Check if REVEAL_PATH is valid as a Reveal.js repository to begin with
+# This function checks if REVEAL_PATH is valid as a Reveal.js repository
+# to begin with
 function check_reveal_path() {
     # Must include:
     #   - $REVEAL_PATH/css/reveal.css
@@ -115,6 +126,9 @@ function check_reveal_path() {
 
 
 # ===========================
+
+
+# === GENERIC OPTIONS ===
 
 case "$1" in
     "-h" | "-help" | "--help" | "?")
@@ -200,16 +214,20 @@ ABOUT REVEAL_PATH:\n\
         ;;
     "-delete-log" | "--delete-log")
         rm /tmp/reveal-init-*
-        echo -e "\r\033[1;32mINFO   \033[0m Deleted all reveal-init log files"
+        printf "\r\033[1;32mINFO   \033[0m Deleted all reveal-init log files\n"
         exit 0
         ;;
 esac
 
+# =======================
+
 # Create a log file for this session in /tmp
+# NOTE: This statement must be executed before any log() function call
 logfile="$(mktemp /tmp/reveal-init-XXXXXXXX)"
 
 [ $# -eq 0 ] && \
     log "Directory name not given.\n$t$t \bInvoke '--help' for more information" 3
+
 
 # === PROCESS OPTIONS ===
 
@@ -224,7 +242,9 @@ do
        [[ "$1" != "-ls-themes" ]] && [[ "$1" != "--ls-themes" ]] && \
        [[ "$1" != "-ls-plugins" ]] && [[ "$1" != "--ls-plugins" ]]
     then
+        # IF the specified directory exists, stop the program
         [ -d "$1" ] && log "Directory '$1' exists" 3
+        # ELSE assign dirname to the argument
         dirname="$1" && break
     fi
 
@@ -238,66 +258,54 @@ do
             opt=""
             ;;
         "-f" | "-theme" | "--theme")
-            if [[ "$1" == "-" ]]; then
-                theme="-"
-            elif [[ "$1" == "all" ]] || [[ "$1" == '*' ]]; then
-                theme='*'
-            else
-                theme="$1"
-            fi
+            case "$1" in
+                '-') theme='-';;
+                'all' | '*') theme='*';;
+                *) theme="$1"
+            esac
+
             opt=""
             ;;
         "-plugin" | "--plugin" | "-plugins" | "--plugins")
-            if [[ "$1" != "-" ]]
-            then
-                plugins="$plugins$1\n"
-            else
-                opt=""
-            fi
+            [[ "$1" != '-' ]] && plugins="$plugins$1\n" || opt=""
             ;;
         "-header" | "--header")
             [[ "$1" == "_TITLE" ]] && header="$title" || header="$1"
             opt=""
             ;;
         "-n")
-            [[ "$1" =~ ^[0-9]+$ ]] \
-              && n_slide="$1" \
-              || log "-n: Invalid input for number of slides, option ignored" 2
+            if [[ "$1" =~ ^[0-9]+$ ]]; then
+                n_slide="$1"
+            else
+                log "-n: Invalid input for number of slides, option ignored" 2
+            fi
             opt=""
             ;;
         "-lib" | "--lib")
-            if [[ "$1" != "-" ]]
-            then
-                libfiles="$libfiles$1\n"
-            else
-                opt=""
-            fi
+            [[ "$1" != "-" ]] && libfiles="$libfiles$1\n" || opt=""
             ;;
         *)
             case "$1" in
+                # Each of these options takes only one argument as its input
                 "-d" | "-D" | "-t" | "-title" | "--title" | "-f" \
                 | "-theme" | "--theme" | "-header" | "--header" | "-n")
                     opt="$1";;
 
                 "-plugin" | "--plugin" | "-plugins" | "--plugins")
-                    opt="$1"
-                    plugins=""
-                    ;;
+                    opt="$1" && plugins="";;  # Reset the variable plugins
 
                 "-lib" | "--lib")
-                    opt="$1"
-                    libfiles=""
-                    ;;
+                    opt="$1" && libfiles="";;  # Reset the variable libfiles
 
                 "-c" | "-check" | "--check")
                     verbose=1
                     check_reveal_path
-                    log "\r\033[1;32mINFO   \033[0m Done checking REVEAL_PATH."
+                    log "Done checking REVEAL_PATH." 0 0 '1;32'
                     if [ $n_err -gt 0 ]; then
-                        log "\r\033[1;31mINFO   \033[0m $n_err error(s) found. Please fix them."
+                        log "$n_err error(s) found. Please fix them." 0 0 '1;31'
                         printf "Log messages can be found in $logfile\n"
                     else
-                        log "\r\033[1;32mINFO   \033[0m REVEAL_PATH is valid."
+                        log "REVEAL_PATH is valid." 0 0 '1;32'
                         rm "$logfile"
                     fi
                     exit 0
@@ -324,9 +332,11 @@ do
                 "-v" | "-verbose" | "--verbose") verbose=1;;
 
                 "-git" | "--git")
-                    [ -z $(command -v git) ] \
-                        && log "--git: Git is not installed, option ignored" 1 \
-                        || git="1"
+                    if [ -n $(command -v git) ]; then
+                        git="1"
+                    else
+                        log "--git: Git is not installed, option ignored" 1
+                    fi
                     ;;
 
                 "-short-tab" | "--short-tab") t="  ";;
@@ -375,9 +385,10 @@ if [ -z "$REVEAL_PATH" ]; then
 fi
 
 echo "REVEAL_PATH: $(readlink -f $REVEAL_PATH)"
-
 check_reveal_path
-[ $n_err -gt 0 ] && log "Fix the above problem(s) and try again" 3 1
+if [ $n_err -gt 0 ]; then
+    log "Fix the above problem(s) and try again" 3 1
+fi
 
 # ==========================
 
@@ -385,7 +396,11 @@ check_reveal_path
 
 # Make directories
 
-[ $git != "0" ] && log "Initializing Git repository..." && git init -- "$dirname"
+if [ $git != "0" ]; then
+    log "Initializing Git repository..."
+    git init -- "$dirname"
+fi
+
 log "Creating $dirname/"
 log "Creating $dirname/js/"
 mkdir -p -- "$dirname/js"
@@ -396,6 +411,7 @@ mkdir -- "$dirname/css"
 # Copy themes
 
 mkdir "$dirname/css/theme"
+
 case "$theme" in
     '*')
         log "Copying all CSS and SCSS files in \$REVEAL_PATH/css/theme/ into $dirname/css/theme"
@@ -422,19 +438,22 @@ esac
 
 # Copy plugins
 
-[[ "$plugins" != "-" ]] && log "Creating $dirname/plugin/"  \
-                      && mkdir -- "$dirname/plugin" &&       \
-echo -e "$plugins" | while read plugin
-do
-    [ -z "$plugin" ] && continue
-    if [ -d "$REVEAL_PATH/plugin/$plugin" ]
-    then
-        log "Copying \$REVEAL_PATH/plugin/$plugin to $dirname/plugin/$plugin"
-        cp -r -- "$REVEAL_PATH/plugin/$plugin" "$dirname/plugin/$plugin"
-    else
-        log "Plugin '$plugin' not found, ignoring..." 1
-    fi
-done
+if [[ "$plugins" != "-" ]]
+then
+    log "Creating $dirname/plugin/"
+    mkdir -- "$dirname/plugin"
+    echo -e "$plugins" | while read plugin
+    do
+        [ -z "$plugin" ] && continue
+        if [ -d "$REVEAL_PATH/plugin/$plugin" ]
+        then
+            log "Copying \$REVEAL_PATH/plugin/$plugin to $dirname/plugin/$plugin"
+            cp -r -- "$REVEAL_PATH/plugin/$plugin" "$dirname/plugin/$plugin"
+        else
+            log "Plugin '$plugin' not found, ignoring..." 1
+        fi
+    done
+fi
 
 # Copy js/ (supposedly contains reveal.js) and reveal.css
 
@@ -456,20 +475,6 @@ case "$libfiles" in
         rm -rf "$dirname/lib"
         ;;
     *)
-        # Current implementation
-        #
-        # echo -e "$libfiles" | while read libfile
-        # do
-        #     [ -z "$libfile" ] && continue
-        #     if [ -e "$REVEAL_PATH/lib/$libfile" ]
-        #     then
-        #         log "Copying \$REVEAL_PATH/lib/$libfile into $dirname/lib/"
-        #         cp -r -- "$REVEAL_PATH/lib/$libfile" "$dirname/lib"
-        #     else
-        #         log "File '$REVEAL_PATH/lib/$libfile' not found, ignoring..." 1
-        #     fi
-        # done
-
         echo -e "$libfiles" | sort | while read libfile
         do
             # Eliminate trailing forward slashes in the path
@@ -483,11 +488,20 @@ case "$libfiles" in
 
             if [ -d "$REVEAL_PATH/lib/$libfile" ]
             then
+                # Here $libfile is a directory, so first look in $libfiles to
+                # see how many paths that contain $libfile/ there are. If there
+                # is 0, that means the user wants to import everything in the
+                # directory $libfile (considering that $libfile's trailing
+                # forward slashes have been removed earlier). If there is more
+                # than 0, the user has chosen to import certain files in the
+                # directory $libfile only.
                 [ $(echo -e "$libfiles" | grep -cP '^'"$libfile"'[/].+') -eq 0 ] \
                     && cp -r "$REVEAL_PATH/lib/$libfile" "$dirname/lib"          \
                     || mkdir "$dirname/lib/$libfile"
             elif [ -f "$REVEAL_PATH/lib/$libfile" ]
             then
+                # Here we use dirname to extract the parent directories of the
+                # $libfile file (relative to $REVEAL_PATH/lib of course).
                 [ -d "$dirname/lib/$(dirname $libfile)" ] \
                     && cp "$REVEAL_PATH/lib/$libfile" "$dirname/lib/$(dirname $libfile)" \
                     || cp "$REVEAL_PATH/lib/$libfile" "$dirname/lib/"
@@ -500,7 +514,7 @@ esac
 
 # Create index.html
 
-log "Creating index.md"
+log "Creating $dirname/index.md"
 touch -- "$dirname/index.html"
 indexf="$dirname/index.html"
 
@@ -513,6 +527,8 @@ $t$t<link rel=\"stylesheet\" href=\"css/reveal.css\">\n" > "$indexf"
 [[ "$theme" != "-" ]] && [[ "$theme" != "*" ]] && [ -d "$dirname/css/theme" ] && \
     printf "$t$t<link rel=\"stylesheet\" href=\"css/theme/$theme.css\">\n" >> "$indexf"
 
+# NOTE: Importing zenburn.css is being considered for removal
+# in a future release.
 [ -f "$dirname/lib/css/zenburn.css" ] && \
 printf \
 "\n$t$t<!-- Theme used for syntax highlighting of code -->\n\
@@ -584,7 +600,7 @@ fi
 printf "$t</body>\n</html>\n" >> "$indexf"
 
 verbose=1  # It is necessary to print the following log message to stdout
-log "\r\033[1;32mINFO   \033[0m Generated a new slide deck at $dirname."
+log "Generated a new slide deck at $dirname." 0 0 '1;32'
 rm "$logfile"
 unalias printf echo cp ls mkdir touch command tee wc readlink sort grep
 exit 0
