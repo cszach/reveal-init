@@ -86,7 +86,7 @@ function log() {
         *)
             [ -z "$color" ] && color='' || color='\033['"$color"'m'
             printf "$color""INFO$nc    $1\n" >> "$logfile"
-            [[ $verbose != "0" ]] && printf "INFO    $1\n"
+            [[ $verbose != "0" ]] && printf "$color""INFO$nc    $1\n"
             ;;
     esac
 
