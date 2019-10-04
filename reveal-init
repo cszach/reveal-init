@@ -213,7 +213,7 @@ ABOUT REVEAL_PATH:\n\
         exit 0
         ;;
     "-delete-log" | "--delete-log")
-        rm /tmp/reveal-init-*
+        rm -f /tmp/reveal-init-*
         printf "\r\033[1;32mINFO   \033[0m Deleted all reveal-init log files\n"
         exit 0
         ;;
@@ -396,6 +396,10 @@ fi
 
 # Make directories
 
+if [[ "${dirname:0:1}" == '-' ]]; then
+    log "It is not recommended to start a directory name with a dash (\"-\")" 1
+fi
+
 if [ $git != "0" ]; then
     log "Initializing Git repository..."
     git init -- "$dirname"
@@ -410,7 +414,7 @@ mkdir -- "$dirname/css"
 
 # Copy themes
 
-mkdir "$dirname/css/theme"
+mkdir -- "$dirname/css/theme"
 
 case "$theme" in
     '*')
@@ -419,7 +423,7 @@ case "$theme" in
             "$REVEAL_PATH"/css/theme/source/*.scss "$dirname/css/theme/"
         ;;
     '-')
-        rm -rf "$dirname/css/theme"
+        rm -rf -- "$dirname/css/theme"
         ;;
     *)
         if [ -f "$REVEAL_PATH/css/theme/$theme.css" ]
@@ -431,7 +435,7 @@ case "$theme" in
                 cp -- "$REVEAL_PATH/css/theme/source/$theme.scss" "$dirname/css/theme/$theme.scss"
         else
             log "Theme '$theme' not found, ignoring..." 1
-            rm -rf "$dirname/css/theme"
+            rm -rf -- "$dirname/css/theme"
         fi
         ;;
 esac
@@ -464,7 +468,7 @@ cp -- "$REVEAL_PATH/css/reveal.css" "$dirname/css/reveal.css"
 
 # Copy lib/
 
-mkdir "$dirname/lib"
+mkdir -- "$dirname/lib"
 
 case "$libfiles" in
     '*')
@@ -472,7 +476,7 @@ case "$libfiles" in
         [ -d "$REVEAL_PATH/lib" ] && cp -r -- "$REVEAL_PATH/lib" "$dirname"
         ;;
     '-')
-        rm -rf "$dirname/lib"
+        rm -rf -- "$dirname/lib"
         ;;
     *)
         echo -e "$libfiles" | sort | while read libfile
@@ -496,15 +500,15 @@ case "$libfiles" in
                 # than 0, the user has chosen to import certain files in the
                 # directory $libfile only.
                 [ $(echo -e "$libfiles" | grep -cP '^'"$libfile"'[/].+') -eq 0 ] \
-                    && cp -r "$REVEAL_PATH/lib/$libfile" "$dirname/lib"          \
-                    || mkdir "$dirname/lib/$libfile"
+                    && cp -r -- "$REVEAL_PATH/lib/$libfile" "$dirname/lib"       \
+                    || mkdir -- "$dirname/lib/$libfile"
             elif [ -f "$REVEAL_PATH/lib/$libfile" ]
             then
                 # Here we use dirname to extract the parent directories of the
                 # $libfile file (relative to $REVEAL_PATH/lib of course).
                 [ -d "$dirname/lib/$(dirname $libfile)" ] \
-                    && cp "$REVEAL_PATH/lib/$libfile" "$dirname/lib/$(dirname $libfile)" \
-                    || cp "$REVEAL_PATH/lib/$libfile" "$dirname/lib/"
+                    && cp -- "$REVEAL_PATH/lib/$libfile" "$dirname/lib/$(dirname $libfile)" \
+                    || cp -- "$REVEAL_PATH/lib/$libfile" "$dirname/lib/"
             else
                 log "File '\$REVEAL_PATH/lib/$libfile' not found, ignoring..." 1
             fi
@@ -564,7 +568,7 @@ then
     printf "$t$t<script>\n$t$t$t\x52eveal.initialize();\n$t$t</script>\n" >> "$indexf"
 else
     printf "$t$t<script>\n$t$t$t\x52eveal.initialize({\n$t$t$t$t\x64ependencies: [\n" >> "$indexf"
-    ls -1A "$dirname/plugin" | while read plugin
+    ls -1A -- "$dirname/plugin" | while read plugin
     do
         [ -z "$plugin" ] && continue
 
