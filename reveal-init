@@ -36,10 +36,11 @@ t="    "  # Tab
 # causing problems, remove the alias command invocation (also unalias at the
 # near end of the file).
 
-alias printf="/usr/bin/printf" echo="/usr/bin/echo" cp="/usr/bin/cp" \
-      ls="/usr/bin/ls" mkdir="/usr/bin/mkdir" touch="/usr/bin/touch"  \
-      command="/usr/bin/command" tee="/usr/bin/tee" wc="/usr/bin/wc"   \
-      readlink="/usr/bin/readlink" sort="/usr/bin/sort" grep="/usr/bin/grep"
+alias printf="/usr/bin/printf" echo="/usr/bin/echo" rm="/usr/bin/rm" \
+      cp="/usr/bin/cp" ls="/usr/bin/ls" mkdir="/usr/bin/mkdir" \
+      touch="/usr/bin/touch" command="/usr/bin/command" tee="/usr/bin/tee" \
+      wc="/usr/bin/wc" readlink="/usr/bin/readlink" sort="/usr/bin/sort" \
+      grep="/usr/bin/grep"
 
 # ===============
 
@@ -611,5 +612,5 @@ printf "$t</body>\n</html>\n" >> "$indexf"
 verbose=1  # It is necessary to print the following log message to stdout
 log "Generated a new slide deck at $dirname." 0 0 '1;32'
 rm "$logfile"
-unalias printf echo cp ls mkdir touch command tee wc readlink sort grep
+unalias printf echo rm cp ls mkdir touch command tee wc readlink sort grep
 exit 0
