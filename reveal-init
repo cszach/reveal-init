@@ -414,13 +414,14 @@ mkdir -- "$dirname/css"
 
 # Copy themes
 
-mkdir -- "$dirname/css/theme"
+mkdir -p -- "$dirname/css/theme/source"
 
 case "$theme" in
     '*')
-        log "Copying all CSS and SCSS files in \$REVEAL_PATH/css/theme/ into $dirname/css/theme"
-        cp -- "$REVEAL_PATH"/css/theme/*.css \
-            "$REVEAL_PATH"/css/theme/source/*.scss "$dirname/css/theme/"
+        log "Copying all CSS files in \$REVEAL_PATH/css/theme/ into $dirname/css/theme"
+        cp -- "$REVEAL_PATH"/css/theme/*.css "$dirname/css/theme/"
+        log "Copying all SCSS files in \$REVEAL_PATH/css/theme/source/ into $dirname/css/theme/source"
+        cp -- "$REVEAL_PATH"/css/theme/source/*.scss "$dirname/css/theme/source/"
         ;;
     '-')
         rm -rf -- "$dirname/css/theme"
@@ -430,9 +431,13 @@ case "$theme" in
         then
             log "Copying \$REVEAL_PATH/css/theme/$theme.css to $dirname/css/theme/$theme.css"
             cp -- "$REVEAL_PATH/css/theme/$theme.css" "$dirname/css/theme/$theme.css"
-            [ -f "$REVEAL_PATH/css/theme/source/$theme.scss" ] && \
-                log "Copying \$REVEAL_PATH/css/theme/$theme.scss to $dirname/css/theme/$theme.scss"
-                cp -- "$REVEAL_PATH/css/theme/source/$theme.scss" "$dirname/css/theme/$theme.scss"
+            if [ -f "$REVEAL_PATH/css/theme/source/$theme.scss" ]
+            then
+                log "Copying \$REVEAL_PATH/css/theme/source/$theme.scss to $dirname/css/theme/source/$theme.scss"
+                cp -- "$REVEAL_PATH/css/theme/source/$theme.scss" "$dirname/css/theme/source/$theme.scss"
+            else
+                rm -rf -- "$dirname/css/theme/source"
+            fi
         else
             log "Theme '$theme' not found, ignoring..." 1
             rm -rf -- "$dirname/css/theme"
