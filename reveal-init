@@ -506,7 +506,7 @@ case "$libfiles" in
                 # than 0, the user has chosen to import certain files in the
                 # directory $libfile only.
                 [ $(echo -e "$libfiles" | grep -cP '^'"$libfile"'[/].+') -eq 0 ] \
-                    && cp -r -- "$REVEAL_PATH/lib/$libfile" "$dirname/lib"       \
+                    && cp -r -- "$REVEAL_PATH/lib/$libfile" "$dirname/lib/$(dirname $libfile)" \
                     || mkdir -- "$dirname/lib/$libfile"
             elif [ -f "$REVEAL_PATH/lib/$libfile" ]
             then
