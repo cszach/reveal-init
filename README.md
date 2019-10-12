@@ -248,6 +248,7 @@ reveal-init -t "Boring slides | Boring Inc." --header "There's nothing here.<br>
 4. :gear: Import plugins too
 5. :shipit: Initiate the project as a Git repository
 6. :bowtie: 2-space tabs or 4-space tabs
+7. :dancer: Very high flexibility
 
 :computer: How to use `reveal-init`
 -----------------------------------
@@ -268,14 +269,8 @@ For more information, please consult [the `reveal-init` wiki][wiki].
 ------------------------
 
 Licensed under [The Unlicense](http://unlicense.org/). This means `reveal-init`
-belongs to the Public Domain. From the license text:
-
-> This is free and unencumbered software released into the public domain.
->
-> Anyone is free to copy, modify, publish, use, compile, sell, or
-> distribute this software, either in source code form or as a compiled
-> binary, for any purpose, commercial or non-commercial, and by any
-> means.
+belongs to the Public Domain. A copy of the license can be found in the
+repository (see [`UNLICENSE`](UNLICENSE)).
 
 In some countries, this may not be legally possible. If so:
 
@@ -288,5 +283,4 @@ referred to as the "prior written permission" or any phrase that conveys the
 same meaning.
 
 The same terms (either The Unlicense's terms or the written permission) are also
-applied to other assets presented in this repository, excluding the copy of The
-Unlicense.
+applied to other assets in this repository, excluding the copy of The Unlicense.
